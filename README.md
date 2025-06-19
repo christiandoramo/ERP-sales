@@ -1,5 +1,10 @@
 # ERP-sales
 
+## Links Importantes
+
+* Nx: https://nx.dev/getting-started/intro 
+* Padrões de Commit: https://github.com/iuricode/padroes-de-commits.git 
+
 ## 🧠 Backend
 
 - **NestJS**: framework modular, com suporte nativo a TypeScript e ótima integração com arquitetura de microsserviços. Facilita a organização em camadas (DDD, Clean Architecture) e comunicação assíncrona com Kafka.
