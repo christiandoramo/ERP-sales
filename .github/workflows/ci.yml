@@ -1,47 +1,70 @@
-name: CI
+name: CI with Docker Compose
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-
-permissions:
-  actions: read
-  contents: read
+    branches: [main]
 
 jobs:
-  main:
+  build-test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-        with:
-          filter: tree:0
-          fetch-depth: 0
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          run_install: false
-      
-      # This enables task distribution via Nx Cloud
-      # Run this command as early as possible, before dependencies are installed
-      # Learn more at https://nx.dev/ci/reference/nx-cloud-cli#npx-nxcloud-startcirun
-      # Uncomment this line to enable task distribution
-      # - run: pnpm dlx nx-cloud start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="build"
+          node-version: 20            # sem cache aqui
 
-      
-      # Cache node_modules
-      - uses: actions/setup-node@v4
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
         with:
-          node-version: 20
-          cache: 'pnpm'
-       
-      - run: pnpm install --frozen-lockfile
-      - uses: nrwl/nx-set-shas@v4
+          version: 10                 # use a que quiser
+          run_install: false          # só instala binário
 
-      # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
-      # - run: pnpm exec nx-cloud record -- echo Hello World
-      # Nx Affected runs only tasks affected by the changes in this PR/commit. Learn more: https://nx.dev/ci/features/affected
-      - run: pnpm exec nx affected -t lint test build
+
+      # - name: Cache pnpm store        # cache manual
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.pnpm-store
+      #     key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+      #     restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies (with hoist fix)
+        run: pnpm install --shamefully-hoist
+
+      - name: Install Nx CLI globally
+        run: pnpm add -g nx
+
+      - name: Run docker-compose (Postgres + Kafka)
+        run: docker compose up -d
+
+      - name: Wait for Kafka and Postgres to be ready
+        run: |
+          echo "Esperando Kafka e Postgres..."
+          sleep 20
+          docker ps
+
+      - name: Prisma generate
+        run: pnpm --filter=auth exec prisma generate --schema=prisma/schema.prisma
+
+      - name: Prisma migrate deploy
+        run: pnpm --filter=auth exec prisma migrate deploy --schema=prisma/schema.prisma
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/micromes_test
+
+      # Unit Tests (granular)
+      - name: Unit tests # deixar aberto para desenvolver com TDD
+        run: |
+          nx run auth:test
+          nx run gateway:test
+
+      # - name: E2E tests # deixar para quando tiver algum teste real para fazer
+      #   run: |
+      #     pnpm exec nx run auth-e2e:e2e
+      #     pnpm exec nx run gateway-e2e:e2e
+      #   env:
+      #     DATABASE_URL: postgres://postgres:postgres@localhost:5432/micromes_test

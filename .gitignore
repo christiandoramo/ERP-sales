@@ -42,3 +42,12 @@ Thumbs.db
 .nx/workspace-data
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
+
+# Next.js
+.next
+out
+/generated/prisma
+
+
+# meu - prisma com estrutura clean architecture
+**/prisma/generated/
