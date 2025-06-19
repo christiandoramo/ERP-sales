@@ -1,9 +1,44 @@
 # ERP-sales
 
+## Diagramas ERs
+
+## Arquitetura: Clean Architecture
+
+<div style="width: 100%; display: flex; justify-content: center; align-items: center">
+
+<div style="width: 400px;">
+
+![arquitetura](./docs/imgs/ca-diagram.png)
+
+</div>
+
+</div>
+
+* Clean Architecture baseada nas versão de Steve "Ardalis" Smith
+ * Domain: Entidades(com regras básicas), Interfaces de use cases e Repositórios - (fundamentos/core)
+ * Application: Repositórios, Casos de uso - (implementação sem acoplamento externo) 
+ * Infrastructure: Implementações reais com Banco, APIs, arquivos, Middlewares etc - (com acoplamento externo)
+ * Presentation: DTOs/Validações com Clientes, Controllers - (adaptadores/portas para web)
+
+* Monorepo, gerenciado com NX: libs e apps
+ * apps: serviços reais
+ * libs: código único e reaproveitável
+
+* API-gateway como entrada e cliente do middleware de comunicação Kafka
+
+* DDD do framework Clean Architecture de Ardalis
+ * Domain, Application, Presentation, Infrastructure
+ * https://github.com/ardalis/CleanArchitecture
+ * Domain: entidades de negócio puras (sem dependências)
+ * Application: casos de uso + interfaces (sem dependência da infraestrutura)
+ * Infrastructure: implementações técnicas (banco, APIs, arquivos, Kafka etc.)
+ * Web (ou Presentation/UI/API): camada de entrada (controladores, HTTP, SSR, GraphQL)
+
 ## Links Importantes
 
 * Nx: https://nx.dev/getting-started/intro 
 * Padrões de Commit: https://github.com/iuricode/padroes-de-commits.git 
+* Nx + Nestjs + Prisma: https://github.com/nrwl/nx-recipes/tree/main/nestjs-prisma#nx--nestjs--prisma 
 
 ## 🧠 Backend
 

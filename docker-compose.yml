@@ -23,7 +23,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKAJS_NO_PARTITIONER_WARNING: 1
       
-  postgres:
+  postgres-product:
     image: postgres
     restart: always
     environment:
@@ -33,7 +33,19 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - micromes-db:/var/lib/postgresql/data
+      - erp-sales-db:/var/lib/postgresql/data
+  postgres-coupon:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB2}
+      POSTGRES_USER: ${POSTGRES_USER2}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD2}
+    ports:
+      - '5433:5432'
+    volumes:
+      - erp-sales-db2:/var/lib/postgresql/data2
 
 volumes:
-  micromes-db:
+  erp-sales-db:
+  erp-sales-db2:

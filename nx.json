@@ -42,11 +42,9 @@
       },
       "exclude": [
         "api-gateway-e2e/**/*",
-        "product-service-e2e/**/*",
-        "coupon-service-e2e/**/*",
         "apps/api-gateway-e2e/**/*",
-        "apps/coupon-e2e/**/*",
-        "apps/product-e2e/**/*"
+        "apps/coupon-service-e2e/**/*",
+        "apps/product-service-e2e/**/*"
       ]
     },
     {

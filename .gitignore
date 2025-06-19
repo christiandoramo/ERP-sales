@@ -46,3 +46,8 @@ Thumbs.db
 # Next.js
 .next
 out
+/generated/prisma
+
+
+# meu - prisma com estrutura clean architecture
+**/prisma/generated/
