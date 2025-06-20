@@ -15,19 +15,12 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@erp-sales/product-service.application": [
-        "libs/product-service.application/src/index.ts"
-      ],
-      "@erp-sales/product-service.domain": [
-        "libs/product-service.domain/src/index.ts"
-      ],
-      "@erp-sales/product-service.infrastructure": [
-        "libs/product-service.infrastructure/src/index.ts"
-      ],
-      "@erp-sales/product-service.presentation": [
-        "libs/product-service.presentation/src/index.ts"
-      ],
-      "@erp-sales/*": ["libs/*/src/index.ts"]
+      "@erp-product-coupon/*": ["libs/*/src/index.ts"],
+      "@erp-product-coupon/env-config": ["shared/env-config/src/index.ts"],
+      "@erp-product-coupon/prisma-config": ["shared/prisma-config/src/index.ts"],
+      "@erp-product-coupon/product-service.lib": [
+        "libs/product-service.lib/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -50,4 +50,4 @@ out
 
 
 # meu - prisma com estrutura clean architecture
-**/prisma/generated/
+**/generated/prisma

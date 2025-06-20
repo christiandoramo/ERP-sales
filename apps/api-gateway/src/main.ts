@@ -1,9 +1,11 @@
+// apps/api-gateway/src/main.ts
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
+import { EnvConfigService } from '@erp-product-coupon/env-config';// não consegue usar
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule,{
+  const app = await NestFactory.create(AppModule,{
     cors: {
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
       origin: '*',
@@ -13,10 +15,14 @@ async function bootstrap() {
   );
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
-  const port = 3006;
+  const configService = app.get(EnvConfigService);
+  const port = configService.getApiGateWayPort()
+  const host = 'localhost'
+
   await app.listen(port);
+
   Logger.log(
-    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`
+    `🚀 API-gateway on: ${host}:${port}/${globalPrefix}`
   );
 }
 

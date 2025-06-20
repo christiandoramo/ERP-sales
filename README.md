@@ -1,6 +1,33 @@
 # ERP-sales
 
-## Diagramas ERs
+
+### Fase de Pesquisa
+
+- Durante a fase de pesquisa e design técnico percebeu-se que algumas tecnologias pensadas inicialmente para desafio pessoal não seriam efetivas.
+
+* Foi descartada a ideia de *1 banco de dados para cada 1* dos serviços do projeto, visto que o pequeno escopo do banco de dados é completamente interligado entre sí, precisando apenas de *1 banco*.
+
+* Como o sistema não precisa de mensageria assíncrona foi decidido trocar o middleware de comunicação de *Kafka* para *gRPC*, por ser o mais performático para request/response e ter HTTP/2. Mas por fim foi optado usar protocolo *TCP* por conta do prazo.
+
+
+## Diagrama ER
+
+<div style="width: 100%; display: flex; justify-content: center; align-items: center">
+
+<div style="width: 800px;">
+
+![er](./docs/imgs/drawsql-er-1.png)
+
+</div>
+
+</div>
+
+## Estrutura
+
+* Foi escolhida uma estrutura de microsserviçps pensando em escalabilidade
+* Em contrapeso à escalabilidade, foi usado Monorepo para reaproveitar e unificar o código
+* Para o Front end foi escolhido um repositório separado
+* Dessa forma o projeto é estruturado em Multirepo + Monorepo
 
 ## Arquitetura: Clean Architecture
 

@@ -19,3 +19,9 @@ para rodar tudo
  nx run-many --target=serve --projects=api-gateway,product-service --parallel
 
  ver erros de build: nx build product-service --verbose
+
+ novo prisma compartilhada já que só tem 1 banco:
+
+ pnpm prisma generate --schema=shared/prisma-config/prisma/schema.prisma
+
+pnpm run erp:migrate

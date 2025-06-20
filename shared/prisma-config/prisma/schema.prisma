@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CouponType{
+  PERCENT
+  FIXED
+}
+
+model Product{
+  id Int @id @default(autoincrement())
+
+  name String @unique
+
+  description String? @db.VarChar(300)
+
+  price Decimal @db.Money // deve ser aceito em notação brasileira e internacional
+
+  stock Int // de 0 a 999.999
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  deletedAt DateTime @map("deleted_at")
+
+  Applications ProductCouponApplication[]
+  @@map("products")
+}
+
+model Coupon{
+  id Int @id @default(autoincrement())
+
+  code String @unique @db.VarChar(20) // 4 a 20 chars
+  
+  type CouponType // percentual ou valor fixo
+
+  value Decimal // de 0.01 até 1.000.000
+
+  oneShot Boolean @map("one_shot") // apenas 1 uso habilitado ou não
+
+  maxUses Int @map("max_uses")
+
+  usersCount Int @map("users_count")
+
+  validFrom DateTime @map("valid_from") 
+
+  validUntil DateTime @map("valid_until") // maior q validUntil e no máximo de 5 anos
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  deletedAt DateTime @map("deleted_at")
+
+  Applications ProductCouponApplication[]
+  @@map("coupons")
+}
+
+model ProductCouponApplication{
+  id Int @id @default(autoincrement())
+
+  productId Int        @map("product_id")
+
+  couponId Int        @map("coupon_id")
+
+  appliedAt DateTime @map("applied_at")
+
+  removedAt DateTime @map("removed_at") // desativado - verificar necessidade de perfil admin...
+
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  coupon   Coupon  @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  @@map("product_coupon_applications")
+}
