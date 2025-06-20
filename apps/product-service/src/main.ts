@@ -1,28 +1,30 @@
-// auth/src/app/main
+// apps/product-service/src/app/main
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { EnvConfigService } from '@erp-product-coupon/env-config';
 
 async function bootstrap() {
-  const port:string = process.env.KAFKA_PORT
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
-    transport: Transport.KAFKA,
+  const app = await NestFactory.create(AppModule);
+
+  const configService = app.get(EnvConfigService);
+  // Obtém o ConfigService
+  const host = 'localhost';
+
+  const tcpPort = configService.getTcpPort()
+
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.TCP,
     options: {
-      client: {
-                brokers: [`localhost:${9092}`],
-        //brokers: [`kafka:${port}`],
-      },
-      consumer: {
-        groupId: 'product-service-consumer',
-      },
+      host,
+      port: tcpPort,
     },
   });
 
-  await app.listen();
-    Logger.log(
-    `🚀 AUTH on: ${port} - localhost(local) / kafka(docker)`
-  );
+  await app.startAllMicroservices();
+
+  Logger.log(`🚀 Product-service on: ${host}:${tcpPort}`);
 }
 bootstrap();
-

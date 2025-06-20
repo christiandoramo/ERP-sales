@@ -1,17 +1,21 @@
+// apps/api-gateway/src/app/presentation/controllers/hello.controller.ts
+
 import { Controller, Get, Inject } from '@nestjs/common';
-import { ClientKafka } from '@nestjs/microservices';
+import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
 @Controller('hello')
-export class HelloController {
-  constructor(@Inject('CLIENT_SERVICE') private readonly client: ClientKafka){}
+export class HelloWorldController {
+  constructor(@Inject('API_GATEWAY') private readonly client: ClientProxy) {}
 
-
-  @Get('world')
-  async getHellowWorld() : Promise<any> {
-    console.log("entrou aki de novo")
-    const a ={}
-    const result = await firstValueFrom( this.client.send('hello.world', a)); 
-    return result;
+  @Get('/world')
+  async getHellowWorld(): Promise<any> {
+    try {
+      const result = await firstValueFrom(this.client.send('hello.world', {}));
+      return result;
+    } catch (err) {
+      console.error('Erro ao enviar hello.world', err);
+      throw err;
+    }
   }
 }

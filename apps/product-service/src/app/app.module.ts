@@ -1,7 +1,8 @@
+// apps/product-service/src/app/app.module.ts
 import { Module } from '@nestjs/common';
-import {ProductServicePresentationModule} from '@erp-sales/product-service.presentation'
-
+import {ProductServiceLibModule} from '@erp-product-coupon/product-service.lib'
+import {EnvConfigModule} from '@erp-product-coupon/env-config'
 @Module({
-  imports: [ProductServicePresentationModule],
+  imports: [EnvConfigModule,ProductServiceLibModule],
 })
 export class AppModule {}
