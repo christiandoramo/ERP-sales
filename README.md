@@ -1,5 +1,14 @@
 # ERP-sales
 
+### Como rodar
+
+A documentação pode ser vista ao acessar: http://localhost:3000/api/v1/docs
+npm install -g nx
+pnpm install
+docker compose up -d
+pnpm prisma generate --schema=shared/prisma-config/prisma/schema.prisma
+pnpm run erp:migrate
+nx run-many --target=serve --projects=product-service,api-gateway
 
 ### Fase de Pesquisa
 
@@ -8,6 +17,8 @@
 * Foi descartada a ideia de *1 banco de dados para cada 1* dos serviços do projeto, visto que o pequeno escopo do banco de dados é completamente interligado entre sí, precisando apenas de *1 banco*.
 
 * Como o sistema não precisa de mensageria assíncrona foi decidido trocar o middleware de comunicação de *Kafka* para *gRPC*, por ser o mais performático para request/response e ter HTTP/2. Mas por fim foi optado usar protocolo *TCP* por conta do prazo.
+
+* Foi escolhido usar os logs de erro em português para agilizar o entendimento
 
 
 ## Diagrama ER

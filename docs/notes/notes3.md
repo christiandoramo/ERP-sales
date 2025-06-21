@@ -13,7 +13,7 @@ pnpm run product-service:migrate
 
 para rodar tudo 
     docker compose up -d
-    nx run-many --target=serve --all
+    nx
 
 
  nx run-many --target=serve --projects=api-gateway,product-service --parallel
@@ -25,3 +25,8 @@ para rodar tudo
  pnpm prisma generate --schema=shared/prisma-config/prisma/schema.prisma
 
 pnpm run erp:migrate
+
+nx run-many --target=test --projects=api-product-service
+
+// testar um lib
+pnpm nx test product-service.lib --skip-nx-cache
