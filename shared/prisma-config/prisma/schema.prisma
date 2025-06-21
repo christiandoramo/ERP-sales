@@ -36,7 +36,7 @@ model Product{
 
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  deletedAt DateTime @map("deleted_at")
+  deletedAt DateTime? @map("deleted_at")
 
   Applications ProductCouponApplication[]
   @@map("products")
@@ -65,7 +65,7 @@ model Coupon{
 
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  deletedAt DateTime @map("deleted_at")
+  deletedAt DateTime? @map("deleted_at")
 
   Applications ProductCouponApplication[]
   @@map("coupons")
@@ -80,7 +80,7 @@ model ProductCouponApplication{
 
   appliedAt DateTime @map("applied_at")
 
-  removedAt DateTime @map("removed_at") // desativado - verificar necessidade de perfil admin...
+  removedAt DateTime? @map("removed_at") // desativado - verificar necessidade de perfil admin...
 
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   coupon   Coupon  @relation(fields: [couponId], references: [id], onDelete: Cascade)

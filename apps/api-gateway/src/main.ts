@@ -13,7 +13,7 @@ async function bootstrap() {
     },
     }
   );
-  const globalPrefix = 'api';
+  const globalPrefix = 'api/v1';
   app.setGlobalPrefix(globalPrefix);
   const configService = app.get(EnvConfigService);
   const port = configService.getApiGateWayPort()

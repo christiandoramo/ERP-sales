@@ -9,6 +9,8 @@
 
 * Como o sistema não precisa de mensageria assíncrona foi decidido trocar o middleware de comunicação de *Kafka* para *gRPC*, por ser o mais performático para request/response e ter HTTP/2. Mas por fim foi optado usar protocolo *TCP* por conta do prazo.
 
+* Foi escolhido usar os logs de erro em português para agilizar o entendimento
+
 
 ## Diagrama ER
 

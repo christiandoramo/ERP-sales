@@ -3,7 +3,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { EnvConfigService } from '@erp-product-coupon/env-config';
 
 async function bootstrap() {
