@@ -7,7 +7,7 @@ import { Product } from '../../domain/entities/product.entity';
 export class DbProductRepository implements ProductRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createProduct(product: Product): Promise<number> {
+  async createProduct(product: Product): Promise<number | null> {
     const created = await this.prisma.product.create({
       data: {
         name: product.name,
@@ -19,21 +19,34 @@ export class DbProductRepository implements ProductRepository {
 
     return created.id;
   }
+  async findByName(name: string): Promise<Product | null> {
+    const found = await this.prisma.product.findFirst({ where: { name } });
+    if (!found) return null;
 
-  async showProduct(id: number): Promise<Product | null> {
-    const prismaProduct = await this.prisma.product.findFirst({ where: {id }});
-    if (!prismaProduct) return null;
-
-    return Product.restore({  
-      id: prismaProduct.id,
-      name: prismaProduct.name,
-      stock: prismaProduct.stock,
-      price: prismaProduct.price.toNumber(),
-      description: prismaProduct.description ?? null,
-      createdAt: prismaProduct.createdAt,
-      updatedAt: prismaProduct.updatedAt,
-      deletedAt: prismaProduct.deletedAt ?? null,
+    return Product.restore({
+      id: found.id,
+      name: found.name,
+      stock: found.stock,
+      price: found.price.toNumber(),
+      description: found.description,
+      createdAt: found.createdAt,
+      updatedAt: found.updatedAt,
+      deletedAt: found.deletedAt,
     });
   }
+  async showProduct(id: number): Promise<Product | null> {
+    const found = await this.prisma.product.findFirst({ where: { id } });
+    if (!found) return null;
 
+    return Product.restore({
+      id: found.id,
+      name: found.name,
+      stock: found.stock,
+      price: found.price.toNumber(),
+      description: found.description,
+      createdAt: found.createdAt,
+      updatedAt: found.updatedAt,
+      deletedAt: found.deletedAt,
+    });
+  }
 }

@@ -8,20 +8,43 @@
 
 import { z } from 'zod';
 import { createZodDto } from 'nestjs-zod';
-import { ZodValidationPipe} from '@erp-product-coupon/pipe-config'
+import { ZodValidationPipe } from '@erp-product-coupon/pipe-config';
 
-const createProductSchema = z.object({
-  name: z.string().min(3).max(100).regex(/^[a-zA-Z0-9\s\-_,.]+$/),
-  description: z.string().max(300).optional(),
+export const createProductSchema = z.object({
+  name: z
+    .string()
+    .min(3)
+    .max(100)
+    .regex(/^[a-zA-Z0-9\s\-_,.]+$/),
   stock: z.number().int().min(0).max(999999),
+  // price: z.preprocess(
+  //   (val) =>
+  //     typeof val === 'string' ? parseFloat(val.replace(',', '.')) : val,
+  //   z.number().min(0.01).max(1_000_000, {
+  //     message: 'Preço fora dos limites permitidos',
+  //   })
+  // ),
+
   price: z
     .union([
-      z.string().transform((val) => parseFloat(val.replace(',', '.'))),
+      z.string().trim().transform((val) => parseFloat(val.replace(',', '.'))),
       z.number()
     ])
     .refine((val) => val >= 0.01 && val <= 1000000, {
       message: 'Preço fora dos limites permitidos',
     }),
+  // price: z
+  //   .union([
+  //     z.number(),
+  //     z.string().transform((val) => parseFloat(val.replace(',', '.'))),
+  //   ])
+  //   .refine((val) => val >= 0.01 && val <= 1000000, {
+  //     message: 'Preço fora dos limites permitidos',
+  //   }),
+    // description: z.string().max(300).nullable().default(null),
+  description: z.string().trim().max(300).optional().nullable().default(null),
+// description: z.string().max(300).optional().nullable().default(null),
+
 });
 
 export const createProductValidationPipe = new ZodValidationPipe(
@@ -30,4 +53,14 @@ export const createProductValidationPipe = new ZodValidationPipe(
 
 export class CreateProductDto extends createZodDto(createProductSchema) {}
 
+export const createProductOkResponseSchema = z.object({
+  id: z.number().int().min(0),
+});
+
+export class CreateProductOkResponseDto extends createZodDto(
+  createProductOkResponseSchema
+) {}
+
+
 export type CreateProductDtoType = z.infer<typeof createProductSchema>;
+

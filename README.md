@@ -1,5 +1,14 @@
 # ERP-sales
 
+### Como rodar
+
+A documentação pode ser vista ao acessar: http://localhost:3000/api/v1/docs
+npm install -g nx
+pnpm install
+docker compose up -d
+pnpm prisma generate --schema=shared/prisma-config/prisma/schema.prisma
+pnpm run erp:migrate
+nx run-many --target=serve --projects=product-service,api-gateway
 
 ### Fase de Pesquisa
 

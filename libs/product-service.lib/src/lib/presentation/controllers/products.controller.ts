@@ -3,14 +3,25 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CreateProductUseCase } from '../../application/use-cases/create-product.use-case';
-import { CreateProductDto, createProductValidationPipe } from '../dtos/create-product.dto';
+import {
+  CreateProductDto,
+  createProductValidationPipe,
+} from '../dtos/create-product.dto';
 
 @Controller()
 export class ProductController {
   constructor(private readonly createProductUseCase: CreateProductUseCase) {}
 
   @MessagePattern('product.create')
-  async handleCreate(@Payload(createProductValidationPipe) payload: CreateProductDto) {
-    return await this.createProductUseCase.execute(payload);
+  async handleCreate(
+    @Payload(createProductValidationPipe) payload: CreateProductDto
+  ) {
+    const { name, price, stock } = payload;
+    return await this.createProductUseCase.execute({
+      description: payload?.description ?? null,
+      name,
+      price,
+      stock,
+    });
   }
 }
