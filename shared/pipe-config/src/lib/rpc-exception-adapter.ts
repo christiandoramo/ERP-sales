@@ -1,3 +1,4 @@
+// shared/pipe-config/src/lib/rpc-exception-adapter.ts
 import { RpcException } from '@nestjs/microservices';
 import { DomainException } from '@erp-product-coupon/pipe-config';
 

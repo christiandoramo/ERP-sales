@@ -7,41 +7,41 @@ import {
 
 describe('CreateProductUseCase', () => {
   let repository: InMemoryProductRepository;
-  let useCase: CreateProductUseCase;
+  let sut: CreateProductUseCase;
 
   beforeEach(() => {
     repository = new InMemoryProductRepository();
-    useCase = new CreateProductUseCase(repository);
+    sut = new CreateProductUseCase(repository);
   });
 
   describe('Criação válida', () => {
     it('deve retornar o id ao criar um produto válido', async () => {
-      const productId = await useCase.execute({
+      const productId = await sut.execute({
         name: 'Produto Válido',
         price: 2590,
         stock: 100,
         description: 'Produto comum',
       });
 
-      expect(productId).toBeGreaterThanOrEqual(0);
+      expect(productId).toBeGreaterThanOrEqual(1);
     });
   });
 
   describe('Validações de domínio', () => {
     it('deve lançar erro se o estoque for menor que 0', async () => {
       await expect(
-        useCase.execute({
+        sut.execute({
           name: 'Produto Inválido',
           price: 100,
           stock: -1,
-          description: 'Estoque inválido',
+          description: 'Produto inválido',
         }),
       ).rejects.toThrow(UnprocessableEntityException);
     });
 
     it('deve lançar erro se o estoque for maior que 999999', async () => {
       await expect(
-        useCase.execute({
+        sut.execute({
           name: 'Estoque Excessivo',
           price: 100,
           stock: 1_000_000,
@@ -52,7 +52,7 @@ describe('CreateProductUseCase', () => {
 
     it('deve lançar erro se o preço for menor que 0.01', async () => {
       await expect(
-        useCase.execute({
+        sut.execute({
           name: 'Produto Barato',
           price: 0.005,
           stock: 10,
@@ -63,7 +63,7 @@ describe('CreateProductUseCase', () => {
 
     it('deve lançar erro se o preço for maior que 1 milhão', async () => {
       await expect(
-        useCase.execute({
+        sut.execute({
           name: 'Produto Caro',
           price: 1_000_001,
           stock: 10,
@@ -74,7 +74,7 @@ describe('CreateProductUseCase', () => {
 
     it('deve lançar erro se o nome tiver menos de 3 caracteres', async () => {
       await expect(
-        useCase.execute({
+        sut.execute({
           name: 'AB',
           price: 100,
           stock: 10,
@@ -86,7 +86,7 @@ describe('CreateProductUseCase', () => {
     it('deve lançar erro se o nome tiver mais de 100 caracteres', async () => {
       const longName = 'A'.repeat(101);
       await expect(
-        useCase.execute({
+        sut.execute({
           name: longName,
           price: 100,
           stock: 10,
@@ -105,10 +105,10 @@ describe('CreateProductUseCase', () => {
         description: 'Primeiro produto',
       };
 
-      await useCase.execute(produto);
+      await sut.execute(produto);
 
       await expect(
-        useCase.execute({
+        sut.execute({
           ...produto,
           description: 'Tentativa duplicada',
         }),

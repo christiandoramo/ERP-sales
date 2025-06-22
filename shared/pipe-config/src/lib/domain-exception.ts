@@ -1,3 +1,4 @@
+// shared/pipe-config/src/lib/domain-exception.ts
 export abstract class DomainException extends Error {
   constructor(
     public override readonly message: string,

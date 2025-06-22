@@ -1,8 +1,5 @@
 // libs/product-service.lib/src/lib/domain/entities/product.entity.ts
-// domain/entities/product.entity.ts
-// libs/product-service.lib/src/lib/domain/entities/product.entity.ts
-
-import { BadRequestException, UnprocessableEntityException } from "@erp-product-coupon/pipe-config";
+import { UnprocessableEntityException } from "../../../../../../shared/pipe-config/src/index";
 
 
 // tratar aqui lógica PURA, não de acesso a dados... como seria feito em use-case
@@ -18,13 +15,12 @@ export class Product {
     public description: string | null,
   ) {}
 
-  static create(props: {
+  static validate(props:{
     name: string;
     stock: number;
     price: number;
     description: string | null;
-  }): Product {
-    const now = new Date();
+  }){
     
     const { name, stock, price } = props;
 
@@ -41,6 +37,17 @@ export class Product {
     if (price < 0.01 || price > 1000000) {
      throw new UnprocessableEntityException(`Preço fora dos limites permitidos.\nPreço: ${price} mas deve estar entre 0 e 1000000`);
     }
+  }
+
+  static create(props: {
+    name: string;
+    stock: number;
+    price: number;
+    description: string | null;
+  }): Product {
+    const now = new Date();
+
+    Product.validate(props)
 
 
     return new Product(
@@ -65,6 +72,9 @@ export class Product {
     deletedAt: Date | null;
     description: string | null;
   }): Product {
+
+    Product.validate(props)
+
     return new Product(
       props.id,
       props.name,
