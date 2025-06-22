@@ -1,7 +1,5 @@
 export interface IEnvInterface {
-    getTcpPort(): number;
-
-    getApiGateWayPort(): number;
-
-    getProductServicePort(): number;
+  getApiGateWayPort(): number;
+  getProductServicePort(): number;
+  getCouponServicePort(): number;
 }

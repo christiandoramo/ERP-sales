@@ -11,7 +11,7 @@ import {
 } from '../dtos/index-product.dto';
 import { IndexProductsUseCase } from '../../application/use-cases/index-product.use-case';
 import { wrapRpc } from '@erp-product-coupon/pipe-config';
-import { IndexProductsInput } from '../../domain/interfaces/index.product';
+import { IndexProductsInput } from '../../domain/interfaces/index-product';
 
 
 @Controller()

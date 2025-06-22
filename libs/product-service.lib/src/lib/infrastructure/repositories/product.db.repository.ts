@@ -6,7 +6,7 @@ import { Product } from '../../domain/entities/product.entity';
 import {
   IndexProductsInput,
   IndexProductsOutput,
-} from '../../domain/interfaces/index.product';
+} from '../../domain/interfaces/index-product';
 
 @Injectable()
 export class DbProductRepository implements ProductRepository {

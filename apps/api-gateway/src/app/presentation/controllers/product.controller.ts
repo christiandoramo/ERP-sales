@@ -12,7 +12,7 @@ import { IndexProductsDto, IndexProductsOutputDto, indexProductsValidationPipe }
 @ApiTags('Produtos')
 @Controller('products')
 export class ProductController {
-  constructor(@Inject('API_GATEWAY') private readonly client: ClientProxy) {}
+  constructor(@Inject('PRODUCT_SERVICE') private readonly client: ClientProxy) {}
 
   // @LocationHeader()
 

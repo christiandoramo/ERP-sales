@@ -4,14 +4,6 @@ import { z } from 'zod';
 import { createZodDto } from 'nestjs-zod';
 import { ZodValidationPipe } from '@erp-product-coupon/pipe-config';
 
-// export const indexProductsSchema = z.object({
-//   page: z.coerce.number().min(1).default(1),
-//   limit: z.coerce.number().min(1).max(100).default(10),
-//   search: z.string().optional(),
-//   minPrice: z.coerce.number().optional(),
-//   maxPrice: z.coerce.number().optional(),
-// });
-
 export const indexProductsSchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(50).default(10), // começa com 10 e no 1 ^ ^ - não 0
@@ -43,13 +35,13 @@ export const productItemSchema = z.object({
   name: z.string(),
   description: z.string().nullable(),
   stock: z.number(),
-  is_out_of_stock: z.boolean(),
+  isOutOfStock: z.boolean(),
   price: z.number(),
   finalPrice: z.number().nullable(),
   discount: discountSchema.nullable(),
   hasCouponApplied: z.boolean().default(false),
-  created_at: z.string(),
-  updated_at: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
 export const metaSchema = z.object({

@@ -6,7 +6,7 @@ import { firstValueFrom } from 'rxjs';
 
 @Controller('hello')
 export class HelloWorldController {
-  constructor(@Inject('API_GATEWAY') private readonly client: ClientProxy) {}
+  constructor(@Inject('PRODUCT_SERVICE') private readonly client: ClientProxy) {}
 
   @Get('/world')
   async getHellowWorld(): Promise<any> {

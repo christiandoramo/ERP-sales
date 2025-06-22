@@ -1,8 +1,8 @@
 // libs/product-service.lib/src/lib/domain/repositories/product.repository.ts
 
 import { Product } from '../../domain/entities/product.entity';
-import { IndexProductsOutput} from '../interfaces/index.product';
-import { IndexProductsInput } from '../interfaces/index.product';
+import { IndexProductsOutput} from '../interfaces/index-product';
+import { IndexProductsInput } from '../interfaces/index-product';
 
 
 

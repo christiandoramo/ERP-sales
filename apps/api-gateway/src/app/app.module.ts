@@ -4,10 +4,11 @@ import { HelloWorldController } from './presentation/controllers/hello.controlle
 import { TransportModule } from './infrastructure/transport/transport.module';
 import {EnvConfigModule } from '@erp-product-coupon/env-config';
 import { ProductController } from './presentation/controllers/product.controller';
+import { CouponController} from './presentation/controllers/coupon.controller'
 
 @Module({
   imports: [EnvConfigModule.forRoot(), TransportModule],
-  controllers: [HelloWorldController, ProductController],
+  controllers: [HelloWorldController, ProductController, CouponController],
   providers: [],
 })
 export class AppModule {}

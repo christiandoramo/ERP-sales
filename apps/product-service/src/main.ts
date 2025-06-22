@@ -4,14 +4,14 @@ import { AppModule } from './app/app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { Logger } from '@nestjs/common';
 import { EnvConfigService } from '@erp-product-coupon/env-config';
-import { RpcDomainExceptionFilter } from './app/infra/filters/rpc-domain-exception.filter';
+import { RpcDomainExceptionFilter } from '@erp-product-coupon/pipe-config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const configService = app.get(EnvConfigService);
   const host = 'localhost';
-  const tcpPort = configService.getTcpPort()
+  const tcpPort = configService.getProductServicePort()
 
    const microservice = app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
@@ -21,10 +21,7 @@ async function bootstrap() {
     },
   });
 
-
   microservice.useGlobalFilters(new RpcDomainExceptionFilter());
-
-
   await app.startAllMicroservices();
 
   Logger.log(`🚀 Product-service on: ${host}:${tcpPort}`);

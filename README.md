@@ -5,11 +5,11 @@
 A documentação pode ser vista ao acessar: http://localhost:3000/docs
 npm install -g nx
 pnpm install
-docker compose up -d
+docker compose up -d (ou criar um postgres com as credencias válidas como no env.example - não ssl)
 pnpm prisma generate --schema=shared/prisma-config/prisma/schema.prisma
 pnpm run erp:migrate
 pnpm run erp:seed (caso o banco esteja vazio apenas)
-nx run-many --target=serve --projects=product-service,api-gateway (ou nx run apps/<nome do serviço>:serve)
+nx run-many --target=serve --projects=product-service,api-gateway (ou nx run apps/<nome do serviço>:serve para rodar individualmente)
 
 para resetar (caso ache necessário, OBS: vai apagar TODOS os containeres até mesmo os inativos de outros projetos):
 docker stop $(docker ps -aq) &&
