@@ -1,14 +1,7 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  provider      = "prisma-client-js"
+  output        = "../generated/prisma"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
-
 }
 
 datasource db {
@@ -16,15 +9,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum CouponType{
-  PERCENT
-  FIXED
-}
-
-model Product{
+model Product {
   id Int @id @default(autoincrement())
 
-  name String @unique
+  name String @unique @db.VarChar(100) // até 100
 
   description String? @db.VarChar(300)
 
@@ -39,25 +27,31 @@ model Product{
   deletedAt DateTime? @map("deleted_at")
 
   Applications ProductCouponApplication[]
+
   @@map("products")
 }
 
-model Coupon{
+enum COUPON_TYPE {
+  percent @map("percent")
+  fixed   @map("fixed")
+}
+
+model Coupon {
   id Int @id @default(autoincrement())
 
-  code String @unique @db.VarChar(20) // 4 a 20 chars
-  
-  type CouponType // percentual ou valor fixo
+  code String @unique @db.VarChar(20) //4 a 20 chars
 
-  value Decimal // de 0.01 até 1.000.000
+  type COUPON_TYPE // percentual ou valor fixo
+
+  value Decimal
 
   oneShot Boolean @map("one_shot") // apenas 1 uso habilitado ou não
 
-  maxUses Int @map("max_uses")
+  maxUses Int @map("max_uses") @default(1)
 
-  usersCount Int @map("users_count")
+  usesCount Int @default(0) @map("uses_count") // numero de vezes usado
 
-  validFrom DateTime @map("valid_from") 
+  validFrom DateTime @map("valid_from")
 
   validUntil DateTime @map("valid_until") // maior q validUntil e no máximo de 5 anos
 
@@ -68,21 +62,23 @@ model Coupon{
   deletedAt DateTime? @map("deleted_at")
 
   Applications ProductCouponApplication[]
+
   @@map("coupons")
 }
 
-model ProductCouponApplication{
+model ProductCouponApplication {
   id Int @id @default(autoincrement())
 
-  productId Int        @map("product_id")
+  productId Int @map("product_id")
 
-  couponId Int        @map("coupon_id")
+  couponId Int @map("coupon_id")
 
   appliedAt DateTime @map("applied_at")
 
   removedAt DateTime? @map("removed_at") // desativado - verificar necessidade de perfil admin...
 
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  coupon   Coupon  @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  coupon  Coupon  @relation(fields: [couponId], references: [id], onDelete: Cascade)
+
   @@map("product_coupon_applications")
 }

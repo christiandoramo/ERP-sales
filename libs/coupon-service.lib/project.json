@@ -1,0 +1,9 @@
+{
+  "name": "coupon-service.lib",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/coupon-service.lib/src",
+  "projectType": "library",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project coupon-service.lib --web",
+  "targets": {}
+}

@@ -4,7 +4,7 @@ import { ProductRepository } from '../../domain/repositories/product.repository'
 import {
   IndexProductsOutput,
   IndexProductsInput,
-} from '../../domain/interfaces/index.product';
+} from '../../domain/interfaces/index-product';
 import {
   UnprocessableEntityException,
 } from '@erp-product-coupon/pipe-config';

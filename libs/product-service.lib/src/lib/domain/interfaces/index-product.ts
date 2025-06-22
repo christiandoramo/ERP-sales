@@ -1,4 +1,4 @@
-// libs/product-service.lib/src/lib/domain/interfaces/index-products.output.ts
+//libs/coupon-service.lib/src/lib/domain/interfaces/index.coupon.input.ts
 export interface ProductListItemOutput {
   id: number;
   name: string;

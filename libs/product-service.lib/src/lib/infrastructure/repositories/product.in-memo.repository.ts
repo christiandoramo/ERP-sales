@@ -4,7 +4,7 @@ import { Product } from '../../domain/entities/product.entity';
 import {
   IndexProductsInput,
   IndexProductsOutput,
-} from '../../domain/interfaces/index.product';
+} from '../../domain/interfaces/index-product';
 
 export class InMemoryProductRepository implements ProductRepository {
   //usar para os testes unitários

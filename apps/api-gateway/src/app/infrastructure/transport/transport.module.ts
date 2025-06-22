@@ -7,7 +7,7 @@ import { ClientsModule, Transport, ClientProxy } from '@nestjs/microservices';
   imports: [
     ClientsModule.registerAsync([
       {
-        name: 'API_GATEWAY', // para publicar eventos de saída
+        name: 'PRODUCT_SERVICE',
         useFactory: (configService: EnvConfigService) => ({
           transport: Transport.TCP,
           options: {
@@ -17,14 +17,31 @@ import { ClientsModule, Transport, ClientProxy } from '@nestjs/microservices';
         }),
         inject: [EnvConfigService],
       },
+      {
+        name: 'COUPON_SERVICE',
+        useFactory: (configService: EnvConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: 'localhost',
+            port: configService.getCouponServicePort(), // precisa criar esse getter no EnvConfigService
+          },
+        }),
+        inject: [EnvConfigService],
+      },
     ]),
   ],
   exports: [ClientsModule],
 })
 export class TransportModule implements OnModuleInit {
-  constructor(@Inject('API_GATEWAY') private readonly client: ClientProxy) {}
+  constructor(
+        @Inject('PRODUCT_SERVICE') private readonly productClient: ClientProxy,
+        @Inject('COUPON_SERVICE') private readonly couponClient: ClientProxy,
+      ) {}
 
-  async onModuleInit() {
-    await this.client.connect();
+async onModuleInit() {
+    await Promise.all([
+      this.productClient.connect(),
+      this.couponClient.connect(),
+    ]);
   }
 }

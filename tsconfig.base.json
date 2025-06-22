@@ -16,6 +16,9 @@
     "baseUrl": ".",
     "paths": {
       "@erp-product-coupon/*": ["libs/*/src/index.ts"],
+      "@erp-product-coupon/coupon-service.lib": [
+        "libs/coupon-service.lib/src/index.ts"
+      ],
       "@erp-product-coupon/env-config": ["shared/env-config/src/index.ts"],
       "@erp-product-coupon/pipe-config": ["shared/pipe-config/src/index.ts"],
       "@erp-product-coupon/prisma-config": [

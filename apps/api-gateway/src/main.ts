@@ -47,7 +47,7 @@ async function bootstrap() {
   await app.listen(port);
 
   Logger.log(
-    `🚀 API-gateway on: ${host}:${port}/${globalPrefix}`
+    `🚀 API-Gateway on: ${host}:${port}/${globalPrefix}`
   );
 }
 

@@ -30,3 +30,11 @@ nx run-many --target=test --projects=api-product-service
 
 // testar um lib
 pnpm nx test product-service.lib --skip-nx-cache
+
+-- criando agora COUPONS
+nx generate @nx/nest:application apps/coupon-service
+nx generate @nx/nest:lib libs/coupon-service.lib
+
+nx run apps/coupon-service:serve
+nx run apps/product-service:serve
+nx run apps/api-gateway:serve
