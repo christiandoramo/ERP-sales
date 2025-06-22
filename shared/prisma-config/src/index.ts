@@ -1,3 +1,3 @@
 export * from './lib/prisma.service';
 export * from './lib/prisma.module';
-export * from './lib/seed';
+// export * from '../prisma/seed';

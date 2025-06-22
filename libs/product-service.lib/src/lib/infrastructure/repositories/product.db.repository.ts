@@ -72,93 +72,98 @@ export class DbProductRepository implements ProductRepository {
 
   // libs/product-service.lib/src/lib/infrastructure/repositories/product.db.repository.ts
 
- async indexProducts(
-  input: IndexProductsInput
-): Promise<IndexProductsOutput> {
-  const {
-    page = 1,
-    limit = 10,
-    search,
-    minPrice,
-    maxPrice,
-    sortBy = 'createdAt',
-    sortOrder = 'desc',
-    includeDeleted = false,
-    onlyOutOfStock = false,
-    withCouponApplied = false,
-    hasDiscount = false,
-  } = input;
+  async indexProducts(input: IndexProductsInput): Promise<IndexProductsOutput> {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      minPrice,
+      maxPrice,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      includeDeleted = false,
+      onlyOutOfStock = false,
+      withCouponApplied = false,
+      hasDiscount = false,
+    } = input;
 
-  const priceFilter =
-    minPrice !== undefined || maxPrice !== undefined
-      ? {
-          price: {
-            ...(minPrice !== undefined && { gte: minPrice }),
-            ...(maxPrice !== undefined && { lte: maxPrice }),
-          },
-        }
-      : {};
 
-  const where: any = {
-    ...(search && {
-      name: {
-        contains: search,
-        mode: 'insensitive',
-      },
-    }),
-    ...priceFilter,
-    ...(onlyOutOfStock && { stock: 0 }),
-    ...(includeDeleted ? {} : { deletedAt: null }),
-  };
+    const priceFilter =
+      minPrice !== undefined || maxPrice !== undefined
+        ? {
+            price: {
+              ...(minPrice !== undefined && { gte: minPrice }),
+              ...(maxPrice !== undefined && { lte: maxPrice }),
+            },
+          }
+        : {};
 
-  const [totalItems, items] = await this.prisma.$transaction([
-    this.prisma.product.count({ where }),
-    this.prisma.product.findMany({
-      where,
-      orderBy: { [sortBy]: sortOrder },
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
-  ]);
+    const where: any = {
+      ...(search && {
+        name: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      }),
+      ...priceFilter,
+      ...(onlyOutOfStock && { stock: 0 }),
+      ...(includeDeleted ? {} : { deletedAt: null }),
+    };
 
-  if (!items.length) return {
-    data: [],
-    meta: {
-      page,
-      limit,
-      totalItems,
-      totalPages: Math.ceil(totalItems / limit),
-    }
-  };
+    console.log({
+  page,
+  limit,
+  skip: (page - 1) * limit
+});
+    const [totalItems, items] = await this.prisma.$transaction([
+      this.prisma.product.count({ where }),
+      this.prisma.product.findMany({
+        where,
+        orderBy: { [sortBy]: sortOrder },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ]);
 
-  const data = items.map((p) => {
-    const discount = null; // TODO: aplicar regra real de desconto/cupom 
-    const finalPrice = p.price.toNumber();
-    const hasCouponApplied = withCouponApplied ? false : false;
+    if (!items.length)
+      return {
+        data: [],
+        meta: {
+          page,
+          limit,
+          totalItems,
+          totalPages: Math.ceil(totalItems / limit),
+        },
+      };
+
+    const data = items.map((p) => {
+      const discount = null; // TODO: aplicar regra real de desconto/cupom
+      const finalPrice = p.price.toNumber();
+      const hasCouponApplied = withCouponApplied ? false : false;
+
+      return {
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        stock: p.stock,
+        isOutOfStock: p.stock === 0,
+        price: p.price.toNumber(),
+        finalPrice,
+        hasCouponApplied,
+        discount,
+        createdAt: p.createdAt.toISOString(),
+        updatedAt: p.updatedAt.toISOString(),
+      };
+    });
 
     return {
-      id: p.id,
-      name: p.name,
-      description: p.description,
-      stock: p.stock,
-      isOutOfStock: p.stock === 0,
-      price: p.price.toNumber(),
-      finalPrice,
-      hasCouponApplied,
-      discount,
-      createdAt: p.createdAt.toISOString(),
-      updatedAt: p.updatedAt.toISOString(),
+      data,
+      meta: {
+        page,
+        limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+      },
     };
-  });
-
-  return {
-    data,
-    meta: {
-      page,
-      limit,
-      totalItems,
-      totalPages: Math.ceil(totalItems / limit),
-    },
-  };
-}
+  }
 }

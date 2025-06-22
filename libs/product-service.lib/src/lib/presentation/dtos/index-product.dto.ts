@@ -14,7 +14,7 @@ import { ZodValidationPipe } from '@erp-product-coupon/pipe-config';
 
 export const indexProductsSchema = z.object({
   page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(10), // começa com 10 e no 1 ^ ^ - não 0
+  limit: z.coerce.number().min(1).max(50).default(10), // começa com 10 e no 1 ^ ^ - não 0
   search: z.string().min(1).max(100).optional(),
   minPrice: z.coerce.number().min(0.01).optional(),
   maxPrice: z.coerce.number().max(1000000).optional(),

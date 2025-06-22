@@ -55,7 +55,8 @@ export class ProductController {
   async indexProduct(
     @Query(indexProductsValidationPipe) query: IndexProductsDto,
   
-  ) : Promise<IndexProductsOutputDto | null> {
-    return await firstValueFrom(this.client.send('product.create', query));
+  ) : Promise<IndexProductsOutputDto> {
+
+    return await firstValueFrom(this.client.send('product.index', query));
   }
 }

@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "erp:migrate": "cd shared/prisma-config/prisma && npx prisma migrate dev && cd ../../",
-    "erp:seed": "ts-node -r tsconfig-paths/register shared/prisma-config/src/lib/seed.ts"
+    "erp:seed": "ts-node shared/prisma-config/prisma/seed.ts"
   },
   "private": true,
   "devDependencies": {
