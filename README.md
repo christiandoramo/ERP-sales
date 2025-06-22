@@ -8,7 +8,7 @@ pnpm install
 docker compose up -d
 pnpm prisma generate --schema=shared/prisma-config/prisma/schema.prisma
 pnpm run erp:migrate
-nx run-many --target=serve --projects=product-service,api-gateway
+nx run-many --target=serve --projects=product-service,api-gateway (ou nx run apps/<nome do serviço>:serve)
 
 ### Fase de Pesquisa
 

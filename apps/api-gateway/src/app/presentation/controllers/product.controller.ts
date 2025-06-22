@@ -1,12 +1,13 @@
 // apps/api-gateway/src/app/presentation/controllers/product.controller.ts
 
-import { Controller, Post, Body, Inject, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, Inject, HttpCode, Get, Query } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateProductDto, createProductValidationPipe, createProductSchema, CreateProductOkResponseDto, createProductOkResponseSchema} from '@erp-product-coupon/product-service.lib'
 import { firstValueFrom } from 'rxjs';
 import { zodToOpenAPI } from 'nestjs-zod';
-import { ApiBody, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LocationHeader } from '@erp-product-coupon/pipe-config';
+import { IndexProductsDto, IndexProductsOutputDto, indexProductsValidationPipe } from 'libs/product-service.lib/src/lib/presentation/dtos/index-product.dto';
 
 @ApiTags('Produtos')
 @Controller('products')
@@ -34,14 +35,27 @@ export class ProductController {
     status: 409,
     description: 'Conflito: nome do produto já existe',
   })
-  @ApiResponse({
-    status: 500,
-    description: 'Erro inesperado no microsserviço',
-  })
   async createProduct(
     @Body(createProductValidationPipe) body: CreateProductDto,
   
   ) : Promise<CreateProductOkResponseDto | null> {
     return await firstValueFrom(this.client.send('product.create', body));
+  }
+
+  @Get()
+  @HttpCode(200)
+  @ApiQuery({
+    description: 'Cadastrar produto',
+    schema: zodToOpenAPI(createProductSchema),
+  })
+  @ApiOkResponse({
+    description: 'Busca realizada com sucesso',
+    schema: zodToOpenAPI(createProductOkResponseSchema),
+  })
+  async indexProduct(
+    @Query(indexProductsValidationPipe) query: IndexProductsDto,
+  
+  ) : Promise<IndexProductsOutputDto | null> {
+    return await firstValueFrom(this.client.send('product.create', query));
   }
 }
