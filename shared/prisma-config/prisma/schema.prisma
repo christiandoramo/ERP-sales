@@ -26,7 +26,8 @@ model Product {
 
   deletedAt DateTime? @map("deleted_at")
 
-  Applications ProductCouponApplication[]
+  Applications     ProductCouponApplication[]
+  PercentDiscounts ProductPercentDiscount[]
 
   @@map("products")
 }
@@ -47,7 +48,7 @@ model Coupon {
 
   oneShot Boolean @map("one_shot") // apenas 1 uso habilitado ou não
 
-  maxUses Int @map("max_uses") @default(1)
+  maxUses Int @default(1) @map("max_uses")
 
   usesCount Int @default(0) @map("uses_count") // numero de vezes usado
 
@@ -73,12 +74,24 @@ model ProductCouponApplication {
 
   couponId Int @map("coupon_id")
 
-  appliedAt DateTime @map("applied_at")
+  appliedAt DateTime @default(now()) @map("applied_at")
 
-  removedAt DateTime? @map("removed_at") // desativado - verificar necessidade de perfil admin...
+  removedAt DateTime? @map("removed_at")
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   coupon  Coupon  @relation(fields: [couponId], references: [id], onDelete: Cascade)
 
   @@map("product_coupon_applications")
+}
+
+model ProductPercentDiscount {
+  id        Int       @id @default(autoincrement())
+  productId Int       @map("product_id")
+  value     Int // percentual inteiro entre 1 e 80
+  appliedAt DateTime  @default(now()) @map("applied_at")
+  removedAt DateTime? @map("removed_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_percent_discounts")
 }

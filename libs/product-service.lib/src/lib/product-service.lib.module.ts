@@ -10,9 +10,12 @@ import { CreateProductUseCase } from './application/use-cases/create-product.use
 import { ProductRepository } from './domain/repositories/product.repository';
 import { DbProductRepository } from './infrastructure/repositories/product.db.repository';
 import { IndexProductsUseCase } from './application/use-cases/index-product.use-case';
+import { CouponServiceLibModule } from '@erp-product-coupon/coupon-service.lib';
+import { ApplyCouponUseCase } from './application/use-cases/apply-coupon.use-case';
+import { ApplyPercentDiscountUseCase } from './application/use-cases/apply-percent-discount.use-case';
 
 @Module({
-  imports: [EnvConfigModule.forRoot(), PrismaModule],
+  imports: [EnvConfigModule.forRoot(), PrismaModule, CouponServiceLibModule],
   controllers: [HelloWorldController, ProductController],
   providers: [
     HelloWorldUseCase,
@@ -22,7 +25,14 @@ import { IndexProductsUseCase } from './application/use-cases/index-product.use-
     },
     CreateProductUseCase,
     IndexProductsUseCase,
+    ApplyCouponUseCase,
+    ApplyPercentDiscountUseCase,
   ],
-  exports: [HelloWorldUseCase, CreateProductUseCase],
+  exports: [
+    HelloWorldUseCase,
+    CreateProductUseCase,
+    ApplyCouponUseCase,
+    ApplyPercentDiscountUseCase,
+  ],
 })
 export class ProductServiceLibModule {}

@@ -5,10 +5,23 @@ import {
   IndexProductsInput,
   IndexProductsOutput,
 } from '../../domain/interfaces/index-product';
+import { ProductWithDiscount } from '../../domain/entities/product-with-discount';
+import {
+  ApplyDiscountInput,
+} from '../../domain/interfaces/discount.interface';
+import { NotFoundException } from '@erp-product-coupon/pipe-config';
 
 export class InMemoryProductRepository implements ProductRepository {
   //usar para os testes unitários
   private products: Map<number, Product> = new Map();
+private couponApplications: Map<
+  number,
+  { couponId: number; discount: number }
+> = new Map();
+
+  private discountMap: Map<number, { discount: number }> =
+    new Map();
+
   private nextId: number = 1;
 
   async createProduct(product: Product): Promise<number | null> {
@@ -90,25 +103,39 @@ export class InMemoryProductRepository implements ProductRepository {
 
     const paginated = sorted.slice((page - 1) * limit, page * limit); // só vai tratar os descontos do que carregou agora
 
-    const data = paginated.map((p) => {
-      const discount = null; // TODO: aplicar regra de desconto real baseado em cupom/campanha
-      const hasCouponApplied = false; // TODO: calcular baseado em coupon system
-      const finalPrice = p.price;
+    const data = await Promise.all(
+      paginated.map(async (p) => {
+        const withDiscount = await this.getProductWithDiscount(p.id);
 
-      return {
-        id: p.id,
-        name: p.name,
-        description: p.description,
-        stock: p.stock,
-        isOutOfStock: p.stock === 0,
-        price: p.price,
-        finalPrice,
-        hasCouponApplied,
-        discount,
-        createdAt: p.createdAt.toISOString(),
-        updatedAt: p.updatedAt.toISOString(),
-      };
-    });
+        const discount = withDiscount?.discount;
+        const finalPrice = discount
+          ? discount.type === 'fixed'
+            ? p.price - discount.value
+            : p.price - (p.price * discount.value) / 100
+          : p.price;
+        const hasCouponApplied = discount?.type === 'fixed';
+
+        return {
+          id: p.id,
+          name: p.name,
+          description: p.description,
+          stock: p.stock,
+          isOutOfStock: p.stock === 0,
+          price: p.price,
+          finalPrice,
+          hasCouponApplied,
+          discount: discount
+            ? {
+                type: discount.type,
+                appliedAt: new Date(),
+                value: discount.value,
+              }
+            : null,
+          createdAt: p.createdAt,
+          updatedAt: p.updatedAt,
+        };
+      })
+    );
 
     return {
       data,
@@ -119,5 +146,82 @@ export class InMemoryProductRepository implements ProductRepository {
         totalPages,
       },
     };
+  }
+
+async getProductWithDiscount(productId: number): Promise<ProductWithDiscount | null> {
+  const product = this.products.get(productId);
+  if (!product) return null;
+
+  if (this.discountMap.has(productId)) {
+    const { discount } = this.discountMap.get(productId)!;
+
+    return new ProductWithDiscount(
+      product.id,
+      product.name,
+      product.stock,
+      product.price,
+      product.createdAt,
+      product.updatedAt,
+      product.deletedAt,
+      product.description,
+      {
+        type: 'percent',
+        value: discount,
+        appliedAt: new Date(),
+      }
+    );
+  }
+
+  if (this.couponApplications.has(productId)) {
+    const { couponId } = this.couponApplications.get(productId)!;
+
+    return new ProductWithDiscount(
+      product.id,
+      product.name,
+      product.stock,
+      product.price,
+      product.createdAt,
+      product.updatedAt,
+      product.deletedAt,
+      product.description,
+      {
+        type: 'fixed', // ou 'percent', se quiser simular no teste
+        value: 0, // valor é irrelevante aqui, já foi usado no cálculo no use-case
+        appliedAt: new Date(),
+      }
+    );
+  }
+
+  return new ProductWithDiscount(
+    product.id,
+    product.name,
+    product.stock,
+    product.price,
+    product.createdAt,
+    product.updatedAt,
+    product.deletedAt,
+    product.description,
+    null
+  );
+}
+
+
+
+async applyCouponToProduct(input: { productId: number; couponId: number }) {
+  this.couponApplications.set(input.productId, {
+    couponId: input.couponId,
+    discount: 0, // Valor do desconto não importa aqui, pois o cálculo foi feito no use-case
+  });
+}
+
+
+
+  async applyDiscount({
+    productId,
+    discount,
+  }: ApplyDiscountInput): Promise<void> {
+    const product = this.products.get(productId);
+    if (!product) return
+    this.discountMap.set(productId, { discount });
   }
 }

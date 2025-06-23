@@ -16,9 +16,12 @@ export class Coupon {
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
     public readonly deletedAt: Date | null
-  ) {}
+  ) {
 
-  private static validate(
+    Coupon.validate({code,type,value,oneShot,maxUses,validFrom,validUntil})
+  }
+
+  public static validate(
     props: CreateCouponInput ): void {
     const { type, value, maxUses,validFrom, validUntil } = props;
     if (type !== 'percent' && type !== 'fixed') {

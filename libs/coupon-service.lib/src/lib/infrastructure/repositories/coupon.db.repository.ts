@@ -106,10 +106,10 @@ export class DbCouponRepository implements CouponRepository {
       maxUses: c.maxUses,
       usesCount: c.usesCount,
       
-      validFrom: c.validFrom.toISOString(),
-      validUntil: c.validUntil.toISOString(),
-      createdAt: c.createdAt.toISOString(),
-      updatedAt: c.updatedAt.toISOString(),
+      validFrom: c.validFrom,
+      validUntil: c.validUntil,
+      createdAt: c.createdAt,
+      updatedAt: c.updatedAt,
     }));
 
     return {

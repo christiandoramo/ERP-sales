@@ -11,10 +11,10 @@ export interface ProductListItemOutput {
   discount?: {
     type: 'percent' | 'fixed';
     value: number;
-    appliedAt: string;
+    appliedAt: Date;
   } | null;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IndexProductsOutput {

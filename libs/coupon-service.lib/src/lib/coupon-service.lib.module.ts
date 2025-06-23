@@ -15,8 +15,17 @@ import { IndexCouponsUseCase } from './application/use-cases/index-coupon.use-ca
       provide: CouponRepository,
       useClass: DbCouponRepository,
     },
-    CreateCouponUseCase,IndexCouponsUseCase,
+    CreateCouponUseCase,
+    IndexCouponsUseCase,
   ],
-  exports: [CreateCouponUseCase,IndexCouponsUseCase],
+  exports: [
+    CreateCouponUseCase,
+    IndexCouponsUseCase,
+    CouponRepository,
+    {
+      provide: CouponRepository,
+      useClass: DbCouponRepository,
+    },
+  ],
 })
 export class CouponServiceLibModule {}

@@ -27,7 +27,7 @@ export const indexProductsValidationPipe = new ZodValidationPipe(indexProductsSc
 export const discountSchema = z.object({
   type: z.enum(['percent', 'fixed']),
   value: z.number(),
-  applied_at: z.string(), // ou z.date().transform(d => d.toISOString())
+  appliedAt: z.string(), // ou z.date().transform(d => d.toISOString())
 });
 
 export const productItemSchema = z.object({

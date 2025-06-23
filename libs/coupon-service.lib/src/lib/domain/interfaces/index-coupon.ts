@@ -11,10 +11,10 @@ export interface CouponListItemOutput {
   oneShot: boolean;
   maxUses: number;
   usesCount: number;
-  validFrom: string;
-  validUntil: string;
-  createdAt: string;
-  updatedAt: string;
+  validFrom: Date;
+  validUntil: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IndexCouponsOutput {
