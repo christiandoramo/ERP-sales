@@ -305,32 +305,22 @@ export class DbProductRepository implements ProductRepository {
   }
 
   async applyCouponToProduct({
-    productId,
-    couponId,
-  }: ApplyCouponToProductInput): Promise<void> {
-    console.log('aqui: 8');
-
-    await this.prisma.productCouponApplication
-      .create({
-        // o cupom já tem os dados para o "desconto"
-        data: {
-          productId,
-          couponId,
-        },
-      })
-      .then(async () => 
-      await this.prisma.coupon.update({
-        where:{
-          id: couponId
-        },
-        data:{
-          usesCount: {
-            increment: 1,
-          }
-        }
-      })
-      );
-  }
+  productId,
+  couponId,
+}: ApplyCouponToProductInput): Promise<void> {
+  await this.prisma.$transaction([ // TRANsaction não pode aplicar coupon sem registrar o uso - "ACID"
+    this.prisma.productCouponApplication.create({
+      data: {
+        productId,
+        couponId,
+      },
+    }),
+    this.prisma.coupon.update({
+      where: { id: couponId },
+      data: { usesCount: { increment: 1 } },
+    }),
+  ]);
+}
 
   async applyDiscount({
     // aqui realmente tem que salvar o desconto percentual - não é o valor final

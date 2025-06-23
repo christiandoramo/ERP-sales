@@ -14,15 +14,6 @@ pnpm run erp:seed
 nx run-many --target=serve --projects=coupon-service,product-service,api-gateway
 ```
 
-para resetar (caso ache necessário, OBS: vai apagar TODOS os containeres até mesmo os inativos de outros projetos):
-```
-docker stop $(docker ps -aq) &&
-docker rm $(docker ps -aq) &&
-docker-compose down -v &&
-docker volume prune -f &&
-docker-compose up --build
-```
-
 ### Fase de Pesquisa
 
 - Durante a fase de pesquisa e design técnico percebeu-se que algumas tecnologias pensadas inicialmente para desafio pessoal não seriam efetivas.

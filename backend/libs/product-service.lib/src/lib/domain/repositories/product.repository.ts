@@ -1,5 +1,5 @@
 // libs/product-service.lib/src/lib/domain/repositories/product.repository.ts
-import { Product } from '../../domain/entities/product.entity';
+import { Product } from '../entities/product.entity';
 import { ProductWithDiscount } from '../entities/product-with-discount';
 import { ApplyCouponToProductInput, ApplyDiscountInput } from '../interfaces/discount.interface';
 import { IndexProductsOutput} from '../interfaces/index-product';

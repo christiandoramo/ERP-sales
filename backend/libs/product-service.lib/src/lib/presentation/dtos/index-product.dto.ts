@@ -57,6 +57,3 @@ export const indexProductsOutputSchema = z.object({
 });
 
 export class IndexProductsOutputDto extends createZodDto(indexProductsOutputSchema) {}
-
-export type ProductItemDto = z.infer<typeof productItemSchema>;
-export type IndexProductsOutputType = z.infer<typeof indexProductsOutputSchema>;

@@ -35,6 +35,17 @@ pnpm nx test product-service.lib --skip-nx-cache
 nx generate @nx/nest:application apps/coupon-service
 nx generate @nx/nest:lib libs/coupon-service.lib
 
+
+para resetar o banco (caso ache necessário, OBS: vai apagar TODOS os containeres até mesmo os inativos de outros projetos):
+```
+docker stop $(docker ps -aq) &&
+docker rm $(docker ps -aq) &&
+docker-compose down -v &&
+docker volume prune -f &&
+docker-compose up --build
+```
+
 nx run apps/coupon-service:serve
 nx run apps/product-service:serve
 nx run apps/api-gateway:serve
+
