@@ -31,7 +31,7 @@ describe('CreateCouponUseCase', () => {
   it('deve lançar erro se código já existir', async () => {
     const input = {
       code: 'REPETIDO',
-      type: 'fixed' as 'fixed'|'percent',
+      type: 'fixed' as 'fixed' | 'percent',
       value: 500,
       oneShot: true,
       maxUses: 10,
@@ -54,7 +54,7 @@ describe('CreateCouponUseCase', () => {
         maxUses: 5,
         validFrom: new Date(),
         validUntil: new Date(Date.now() + 1000 * 60 * 60 * 24),
-      }),
+      })
     ).rejects.toThrow(UnprocessableEntityException);
   });
 
@@ -71,7 +71,41 @@ describe('CreateCouponUseCase', () => {
         maxUses: 1,
         validFrom: now,
         validUntil: past,
-      }),
+      })
+    ).rejects.toThrow(UnprocessableEntityException);
+  });
+
+  it('deve lançar erro se nome do cupom for menor do que 4', async () => {
+    const now = new Date();
+    const past = new Date(now.getTime() - 1000 * 60);
+
+    await expect(
+      sut.execute({
+        code: 'DATA',
+        type: 'fixed',
+        value: 100,
+        oneShot: true,
+        maxUses: 1,
+        validFrom: now,
+        validUntil: past,
+      })
+    ).rejects.toThrow(UnprocessableEntityException);
+  });
+
+  it('deve lançar erro se nome do cupom for maior do que 20', async () => {
+    const now = new Date();
+    const past = new Date(now.getTime() - 1000 * 60);
+
+    await expect(
+      sut.execute({
+        code: 'DATAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        type: 'fixed',
+        value: 100,
+        oneShot: true,
+        maxUses: 1,
+        validFrom: now,
+        validUntil: past,
+      })
     ).rejects.toThrow(UnprocessableEntityException);
   });
 });

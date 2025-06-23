@@ -308,13 +308,28 @@ export class DbProductRepository implements ProductRepository {
     productId,
     couponId,
   }: ApplyCouponToProductInput): Promise<void> {
-    await this.prisma.productCouponApplication.create({
-      // o cupom já tem os dados para o "desconto"
-      data: {
-        productId,
-        couponId,
-      },
-    });
+    console.log('aqui: 8');
+
+    await this.prisma.productCouponApplication
+      .create({
+        // o cupom já tem os dados para o "desconto"
+        data: {
+          productId,
+          couponId,
+        },
+      })
+      .then(async () => 
+      await this.prisma.coupon.update({
+        where:{
+          id: couponId
+        },
+        data:{
+          usesCount: {
+            increment: 1,
+          }
+        }
+      })
+      );
   }
 
   async applyDiscount({

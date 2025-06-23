@@ -23,7 +23,13 @@ export class Coupon {
 
   public static validate(
     props: CreateCouponInput ): void {
-    const { type, value, maxUses,validFrom, validUntil } = props;
+    const { type, value, maxUses,validFrom, validUntil,code } = props;
+    if (code.length <4 || code.length > 20) {
+      throw new UnprocessableEntityException(
+        'Código do cupom inválido. O nome do cupom deve estar entre 4 e 20'
+      );
+    }
+
     if (type !== 'percent' && type !== 'fixed') {
       throw new UnprocessableEntityException(
         'Tipo de cupom inválido. Esperado: "percent" ou "fixed".'

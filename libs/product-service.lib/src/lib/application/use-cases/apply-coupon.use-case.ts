@@ -6,6 +6,7 @@ import {
 } from '../../domain/interfaces/apply-coupon';
 import { CouponRepository } from 'libs/coupon-service.lib/src/lib/domain/repositories/coupon.repository';
 import {
+  BadRequestException,
   ConflictException,
   NotFoundException,
   UnprocessableEntityException,
@@ -20,17 +21,29 @@ export class ApplyCouponUseCase {
   ) {}
 
   async execute(input: ApplyCouponInput): Promise<ApplyCouponOutput> {
+    console.log('aqui: 3');
     const repoCoupon = await this.couponRepo.findByName(input.couponCode);
     if (!repoCoupon) throw new NotFoundException('Cupom não encontrado');
     Coupon.validate(repoCoupon); // valida aqui critérios do cupom
 
-        // verificar campo DESCONTO a partir daqui
+
+    if(repoCoupon.oneShot && repoCoupon.usesCount>0)  throw new ConflictException('Cupom de uso único já utilizado');
+    if(!repoCoupon.oneShot && repoCoupon.usesCount === repoCoupon.maxUses)  throw new BadRequestException('Cupom expirado ou ainda não válido. ');
+    console.log('aqui: 4');
+
+    // verificar campo DESCONTO a partir daqui
     const productWithDiscount = await this.productRepo.getProductWithDiscount(
       input.productId
     );
-    if (!productWithDiscount) throw new NotFoundException('Produto não encontrado');
-    if (productWithDiscount?.discount){throw new ConflictException('Produto já possui um desconto aplicado');}
+    if (!productWithDiscount)
+      throw new NotFoundException('Produto não encontrado');
+    if (productWithDiscount?.discount) {
+      throw new ConflictException('Produto já possui um desconto aplicado');
+    }
     // ja tem disconto e trás disconto - cupom (fixed/percent) ou percentual direto
+
+    console.log('aqui: 5');
+
     const discount =
       repoCoupon.type === 'fixed'
         ? repoCoupon.value
@@ -42,10 +55,14 @@ export class ApplyCouponUseCase {
         'Preço final inválido após aplicar cupom'
       );
 
+    console.log('aqui: 6: - discount - finalPrice ', discount, finalPrice);
+
     await this.productRepo.applyCouponToProduct({
       productId: input.productId,
       couponId: repoCoupon.id,
     });
+
+    console.log('aqui: 7');
 
     return {
       discount,
