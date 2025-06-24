@@ -24,7 +24,7 @@ export class IndexProductsUseCase {
       throw new UnprocessableEntityException(
         'Preço mínimo não pode ser maior que o preço máximo'
       );
-
+      console.log("entrou em params: ",params)
     return this.productRepository.indexProducts(params);
   }
 }

@@ -49,3 +49,4 @@ nx run apps/coupon-service:serve
 nx run apps/product-service:serve
 nx run apps/api-gateway:serve
 
+nx run apps/product-service:serve

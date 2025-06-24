@@ -1,4 +1,4 @@
-// src/app/components/overlay-overlay-loader.tsx
+// src/app/components/OverlayLoader.tsx
 'use client';
 import { Spin } from 'antd';
 

@@ -1,7 +1,9 @@
-// src/app/components/product/ProductTableHeader.tsx
+// src/app/products/components/ProductTableHeader.tsx
+'use client'
+
 import { Button } from 'antd';
 
-export default function ProductTableHeader({
+export function ProductTableHeader({
   total,
   onClear,
 }: {

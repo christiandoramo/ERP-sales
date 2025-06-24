@@ -18,8 +18,6 @@ export const createProductSchema = z.object({
       message: 'Preço fora dos limites permitidos',
     }),
   description: z.string().trim().max(300).optional().nullable().default(null),
-// description: z.string().max(300).optional().nullable().default(null),
-
 });
 
 export const createProductValidationPipe = new ZodValidationPipe(
