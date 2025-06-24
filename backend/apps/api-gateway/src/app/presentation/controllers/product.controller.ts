@@ -11,6 +11,8 @@ import {
   Param,
   ParseIntPipe,
   Delete,
+  Header,
+  Patch,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
@@ -25,20 +27,28 @@ import {
   ShowProductOutputDto,
   SoftDeleteOutputDto,
   RestoreOutputDto,
+  updateProductPatchSchema,
+  UpdateProductPatchDto,
+  UpdateProductOutputPatchDto,
 } from '@erp-product-coupon/product-service.lib';
 import { firstValueFrom } from 'rxjs';
 import { zodToOpenAPI } from 'nestjs-zod';
 import {
+  ApiBadRequestResponse,
   ApiBody,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiParam,
+  ApiPreconditionFailedResponse,
   ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { LocationHeader } from '@erp-product-coupon/pipe-config';
+import {
+  LocationHeader,
+  ZodValidationPipe,
+} from '@erp-product-coupon/pipe-config';
 import {
   IndexProductsDto,
   IndexProductsOutputDto,
@@ -208,24 +218,54 @@ export class ProductController {
   }
 
   @Delete(':id')
-  @HttpCode(204)
+  @HttpCode(204) // AQUI RECEBE RESOISTA MAIS OPTEI POR USAR HTTP 204 para esconder por conta das sugestões
   @ApiNoContentResponse({ description: 'Produto inativado com sucesso' })
   @ApiNotFoundResponse({ description: 'Produto não encontrado ou já inativo' })
   async softDeleteProduct(
     @Param('id', ParseIntPipe) id: number
   ): Promise<void> {
-    await firstValueFrom(
-      this.client.send('product.soft.delete', { id })
-    );
+    await firstValueFrom(this.client.send('product.soft.delete', { id }));
   }
 
   @Post(':id/restore')
-  @HttpCode(204)
+  @HttpCode(200) // AQUI RECEBE RESOISTA MAIS OPTEI POR USAR HTTP 204 para esconder por conta das sugestões
   @ApiNoContentResponse({ description: 'Produto restaurado com sucesso' })
   @ApiNotFoundResponse({ description: 'Produto não encontrado ou já ativo' })
   async restoreProduct(
     @Param('id', ParseIntPipe) id: number
-  ): Promise<void> {
-    await firstValueFrom(this.client.send('product.restore', { id }));
+  ): Promise<RestoreOutputDto> {
+    return await firstValueFrom(this.client.send('product.restore', { id }));
+  }
+
+  @Delete(':id/discount')
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: 'Desconto removido com sucesso' })
+  @ApiNotFoundResponse({
+    description: 'Produto não encontrado ou sem desconto registrado',
+  })
+  async removeDiscount(
+    @Param('id', ParseIntPipe) id: number
+  ): Promise<RestoreOutputDto> {
+    // RestoreOutputDto pode ser substituído por uma interface genérica...
+    return await firstValueFrom(
+      this.client.send('product.remove.discount', { id })
+    );
+  }
+
+  @Patch(':id')
+  @HttpCode(200)
+  @ApiOkResponse({ description: 'Produto atualizado com sucesso' })
+  @ApiBadRequestResponse({ description: 'Payload inválido' })
+  @ApiNotFoundResponse({ description: 'Produto não encontrado' })
+  @ApiPreconditionFailedResponse({ description: 'Produto inativo' })
+  @Header('Content-Type', 'application/json-patch+json')
+  async updateProduct(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(new ZodValidationPipe(updateProductPatchSchema))
+    patch: UpdateProductPatchDto
+  ): Promise<UpdateProductOutputPatchDto> {
+    return await firstValueFrom(
+      this.client.send('product.update', { id, patch })
+    );
   }
 }

@@ -2,12 +2,13 @@
 import { Injectable } from '@nestjs/common';
 import { ProductRepository } from '../../domain/repositories/product.repository';
 import { ShowProductInput, ShowProductOutput } from '../../domain/interfaces/show-product.output';
+import { UnprocessableEntityException } from '@erp-product-coupon/pipe-config';
 
 @Injectable()
 export class ShowProductUseCase {
-  constructor(private readonly productRepository: ProductRepository) {}
+  constructor(private readonly productRepository: ProductRepository) {}  // deixei aberto a consulta mesmo produtos "deletados" aqui de propósito
 
-  async execute(showProductInput: ShowProductInput): Promise<ShowProductOutput | null> {
+  async execute(showProductInput: ShowProductInput): Promise<ShowProductOutput | null> {  // deixei aberto a consulta mesmo produtos "deletados" aqui de propósito
     const product = await this.productRepository.getProductWithDiscount(showProductInput.id);
     if (!product) return null;
 
@@ -16,7 +17,7 @@ export class ShowProductUseCase {
     const totalDiscountValue = product.discount
       ? product.discount.type === 'fixed'
         ? product.discount.value
-        : Math.round((product.price * product.discount.value) / 100)
+        : (product.price * product.discount.value) / 100
       : 0;
 
     const finalPrice =
@@ -25,9 +26,9 @@ export class ShowProductUseCase {
         : product.price;
 
         // AVALIAR O FINAL PRICE não entra ao mérito desse use-case, a culpa é dos appply-coupon e apply-percent-discount
-    // if (finalPrice !== null && finalPrice < 0.01) {
-    //   throw new UnprocessableEntityException('Preço final inválido após aplicar cupom');
-    // }
+    if (finalPrice !== null && finalPrice < 0.01) {
+      throw new UnprocessableEntityException('Preço final inválido após aplicar cupom');
+    }
 
     return {
       data: {

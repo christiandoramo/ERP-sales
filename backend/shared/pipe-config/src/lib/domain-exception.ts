@@ -2,7 +2,7 @@
 export abstract class DomainException extends Error {
   constructor(
     public override readonly message: string,
-    public readonly statusCode: number, // ← Aqui já colocamos o status correto
+    public readonly statusCode: number // ← Aqui já colocamos o status correto
   ) {
     super(message);
   }
@@ -12,6 +12,13 @@ export abstract class DomainException extends Error {
 export class BadRequestException extends DomainException {
   constructor(message: string) {
     super(message, 400);
+  }
+}
+
+//O código de resposta de erro de cliente HTTP 412 Precondition Failed indica que o acesso ao recurso especificado foi negado.
+export class PreConditionException extends DomainException {
+  constructor(message: string) {
+    super(message, 422);
   }
 }
 
@@ -32,5 +39,12 @@ export class NotFoundException extends DomainException {
 export class UnprocessableEntityException extends DomainException {
   constructor(message: string) {
     super(message, 422);
+  }
+}
+
+// erro desconhecido pelo servidor web
+export class UnknowErrorException extends DomainException {
+  constructor(message: string) {
+    super(message, 520);
   }
 }

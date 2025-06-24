@@ -51,12 +51,12 @@ export class IndexProductsUseCase {
       );
     }
 
-    const products = await this.productRepository.indexProducts(params);
+    const indexProductReturn = await this.productRepository.indexProducts(params);
 
-    const totalItems = products.length;
-    const totalPages = Math.ceil(totalItems / limit);
+    const totalItems = indexProductReturn.meta.totalItems;
+    const totalPages = indexProductReturn.meta.totalPages
 
-    const data = products.map((product) => {
+    const data = indexProductReturn.data.map((product) => {
       const isOutOfStock = product.stock === 0;
 
       const discount = product.discount; // pode ser nulo
@@ -64,7 +64,7 @@ export class IndexProductsUseCase {
         discount != null
           ? discount.type === 'fixed' 
             ? discount.value
-            : Math.round((product.price * discount.value) / 100)
+            : (product.price * discount.value) / 100
           : 0;
 
       const finalPrice =

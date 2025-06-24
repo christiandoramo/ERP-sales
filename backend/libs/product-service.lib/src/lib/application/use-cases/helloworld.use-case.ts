@@ -6,3 +6,7 @@ export class HelloWorldUseCase {
     return { message: 'Hello API' };
   }
 }
+
+
+
+// Use-case para apoio emocional

@@ -37,6 +37,8 @@ import {
 } from '../dtos/show-product.dto';
 import { SoftDeleteProductUseCase } from '../../application/use-cases/soft-delete.use-case';
 import { RestoreProductUseCase } from '../../application/use-cases/restore-product.use-case';
+import { UpdateProductUseCase } from '../../application/use-cases/update-product.use-case';
+import { RemoveProductDiscountUseCase } from '../../application/use-cases/remove-discount.use-case';
 
 @Controller()
 export class ProductController {
@@ -47,7 +49,9 @@ export class ProductController {
     private readonly applyPercentDiscountUseCase: ApplyPercentDiscountUseCase,
     private readonly showProductUseCase: ShowProductUseCase,
     private readonly softDeleteProductUseCase: SoftDeleteProductUseCase,
-    private readonly restoreProductUseCase: RestoreProductUseCase
+    private readonly restoreProductUseCase: RestoreProductUseCase,
+    private readonly removeProductDiscountUseCase: RemoveProductDiscountUseCase,
+    private readonly updateProductUseCase: UpdateProductUseCase
   ) {}
 
   @MessagePattern('product.create')
@@ -103,7 +107,7 @@ export class ProductController {
   }
 
   @MessagePattern('product.show-product')
-  async showProduct(
+  async showProduct(  // deixei aberto a consulta mesmo produtos "deletados" aqui de propósito
     @Payload(showProductValidationPipe)
     payload: ShowProductDto
   ) {
@@ -116,7 +120,7 @@ export class ProductController {
 
   @MessagePattern('product.soft.delete')
   async handleSoftDelete(@Payload() payload: { id: number }) {
-    const { id } = payload
+    const { id } = payload;
     console.log('aqui: 2', id, typeof id);
 
     return wrapRpc(async () => {
@@ -130,4 +134,19 @@ export class ProductController {
       return await this.restoreProductUseCase.execute(+payload.id);
     })();
   }
+
+  @MessagePattern('product.remove.discount')
+  async handleRemoveDiscount(@Payload() payload: { id: number }) {
+    return wrapRpc(async () => {
+      return await this.removeProductDiscountUseCase.execute(+payload.id);
+    })();
+  }
+
+  @MessagePattern('product.update')
+async handleUpdate(@Payload() payload: { id: number; patch: any[] }) {
+  return wrapRpc(() =>
+    this.updateProductUseCase.execute(+payload.id, payload.patch)
+  )();
+}
+
 }

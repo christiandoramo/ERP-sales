@@ -14,6 +14,10 @@ import {
   ApplyDiscountInput,
   DiscountInterface,
 } from '../../domain/interfaces/discount.interface';
+import {
+  RemoveCouponApplicationInput,
+  RemovePercentDiscountInput,
+} from '../../domain/interfaces/remove-discount.input';
 
 @Injectable()
 export class DbProductRepository implements ProductRepository {
@@ -90,6 +94,7 @@ export class DbProductRepository implements ProductRepository {
           include: { coupon: true },
         },
         PercentDiscounts: {
+          where: { removedAt: null },
           orderBy: { appliedAt: 'desc' },
           take: 1,
         },
@@ -97,11 +102,13 @@ export class DbProductRepository implements ProductRepository {
     });
 
     if (!product) return null;
-
     const couponApplication = product.Applications?.[0];
     const percentDiscount = product.PercentDiscounts?.[0];
+    let couponAppId = couponApplication?.id ?? undefined;
+    let percentDiscountId = percentDiscount?.id ?? undefined;
 
     let discount: DiscountInterface | null = null;
+
 
     if (couponApplication) {
       discount = {
@@ -126,7 +133,9 @@ export class DbProductRepository implements ProductRepository {
       product.updatedAt,
       product.deletedAt,
       product.description,
-      discount
+      discount,
+      couponAppId,
+      percentDiscountId
     );
 
     // Dispara as 3 queries em paralelo
@@ -288,7 +297,7 @@ export class DbProductRepository implements ProductRepository {
 
   async indexProducts(
     params: IndexProductsInput
-  ): Promise<ProductWithDiscount[]> {
+  ): Promise<IndexProductsOutput> {
     const {
       page = 1,
       limit = 10,
@@ -315,6 +324,7 @@ export class DbProductRepository implements ProductRepository {
       ...(includeDeleted ? {} : { deletedAt: null }),
     };
 
+    // Primeiro busca total de itens
     const [totalItems, products] = await this.prisma.$transaction([
       this.prisma.product.count({ where }),
       this.prisma.product.findMany({
@@ -325,11 +335,48 @@ export class DbProductRepository implements ProductRepository {
       }),
     ]);
 
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Aplica desconto (se houver)
     const fullProducts = await Promise.all(
       products.map((p) => this.getProductWithDiscount(p.id))
     );
 
-    return fullProducts.filter(Boolean) as ProductWithDiscount[]; // remove nulls
+    const data = fullProducts.filter(Boolean).map((p) => {
+      const discount = p!.discount;
+      const finalPrice = discount
+        ? discount.type === 'fixed'
+          ? p!.price - discount.value
+          : p!.price - (p!.price * discount.value) / 100
+        : p!.price;
+
+      const hasCouponApplied = discount?.type === 'fixed';
+
+      return {
+        id: p!.id,
+        name: p!.name,
+        description: p!.description,
+        stock: p!.stock,
+        isOutOfStock: p!.stock === 0,
+        price: p!.price,
+        finalPrice: Math.max(0, Math.round(finalPrice * 100) / 100),
+        hasCouponApplied,
+        discount,
+        createdAt: p!.createdAt,
+        updatedAt: p!.updatedAt,
+        deletedAt: p!.deletedAt,
+      };
+    });
+
+    return {
+      data,
+      meta: {
+        page,
+        limit,
+        totalItems,
+        totalPages,
+      },
+    };
   }
 
   async softDeleteProduct(id: number): Promise<void> {
@@ -343,6 +390,78 @@ export class DbProductRepository implements ProductRepository {
     await this.prisma.product.update({
       where: { id },
       data: { deletedAt: null },
+    });
+  }
+  async updateProduct(
+    id: number,
+    patch: Partial<Product>
+  ): Promise<Product | null> {
+    const existing = await this.prisma.product.findUnique({ where: { id } });
+    if (!existing) return null;
+
+    const updated = await this.prisma.product.update({
+      where: { id },
+      data: {
+        ...(patch.name !== undefined && { name: patch.name }),
+        ...(patch.stock !== undefined && { stock: patch.stock }),
+        ...(patch.price !== undefined && { price: patch.price }),
+        ...(patch.description !== undefined && {
+          description: patch.description,
+        }),
+        ...(patch.hasOwnProperty('deletedAt') && {
+          // Só vai alterar se realmente tiver a input
+          deletedAt: patch.deletedAt ?? null,
+        }),
+      },
+    });
+
+    return new Product(
+      updated.id,
+      updated.name,
+      updated.stock,
+      updated.price.toNumber(),
+      updated.createdAt,
+      updated.updatedAt,
+      updated.deletedAt,
+      updated.description
+    );
+  }
+
+  async findProductWithPercentsAndCoupons(
+    productId: number
+  ): Promise<ProductWithDiscount | null> {
+    const prod = await this.getProductWithDiscount(productId);
+    if (!prod) return null;
+    return new ProductWithDiscount(
+      prod.id,
+      prod.name,
+      prod.stock,
+      prod.price,
+      prod.createdAt,
+      prod.updatedAt,
+      prod.deletedAt,
+      prod.description,
+      prod?.discount,
+      prod?.couponApplicationId,
+      prod?.percentDiscountId
+    );
+  }
+
+  async removePercentDiscount(
+    input: RemovePercentDiscountInput
+  ): Promise<void> {
+    await this.prisma.productPercentDiscount.update({
+      where: { id: input.percentDiscountId },
+      data: { removedAt: new Date() },
+    });
+  }
+
+  async removeCouponApplication(
+    input: RemoveCouponApplicationInput
+  ): Promise<void> {
+    await this.prisma.productCouponApplication.update({
+      where: { id: input.couponApplicationId },
+      data: { removedAt: new Date() },
     });
   }
 }

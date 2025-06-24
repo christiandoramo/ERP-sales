@@ -9,6 +9,10 @@ import { IndexProductsOutput } from '../interfaces/index-product';
 import { IndexProductsInput } from '../interfaces/index-product';
 import { SoftDeleteOutput } from '../interfaces/soft-delete.interface';
 import { RestoreOutput } from '../interfaces/restore.interface';
+import {
+  RemoveCouponApplicationInput,
+  RemovePercentDiscountInput,
+} from '../interfaces/remove-discount.input';
 
 export abstract class ProductRepository {
   // PRESENTATION NÃO FICA DENTRO DE DOMAIN - REMOVER DTOs, usar ENTITIES
@@ -19,7 +23,7 @@ export abstract class ProductRepository {
   // abstract indexProducts(params: IndexProductsInput): Promise<IndexProductsOutput>;
   abstract indexProducts(
     params: IndexProductsInput
-  ): Promise<ProductWithDiscount[]>;
+  ): Promise<IndexProductsOutput>;
 
   abstract getProductWithDiscount(
     productId: number
@@ -31,4 +35,15 @@ export abstract class ProductRepository {
   abstract applyDiscount(input: ApplyDiscountInput): Promise<void>;
   abstract softDeleteProduct(id: number): Promise<void>;
   abstract restoreProduct(id: number): Promise<void>;
+
+  abstract findProductWithPercentsAndCoupons(
+    productId: number
+  ): Promise<ProductWithDiscount | null>;
+
+  abstract removePercentDiscount(input: RemovePercentDiscountInput): Promise<void>;
+
+  abstract removeCouponApplication(input: RemoveCouponApplicationInput): Promise<void>;
+
+  abstract updateProduct(id: number, patch: Partial<Product>): Promise<Product | null>;
+
 }

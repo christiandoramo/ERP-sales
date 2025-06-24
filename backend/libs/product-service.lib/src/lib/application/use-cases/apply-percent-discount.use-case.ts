@@ -14,10 +14,9 @@ import {
 export class ApplyPercentDiscountUseCase {
   constructor(private readonly productRepo: ProductRepository) {}
 
-  
   async execute(
     input: ApplyPercentDiscountInput
-  ): Promise<ApplyPercentDiscountOutput> {
+  ): Promise<ApplyPercentDiscountOutput> { 
     const product = await this.productRepo.showProduct(input.productId); // primeiro busca se existe produto
     if (!product) throw new NotFoundException('Produto não encontrado');
 
@@ -34,8 +33,8 @@ export class ApplyPercentDiscountUseCase {
       throw new ConflictException('Produto já possui um desconto aplicado');
     // ja tem disconto e trás disconto - cupom (fixed/percent) ou percentual direto
 
-    const discount = Math.round((product.price * input.percent) / 100);
-    const finalPrice = +(product.price - discount).toFixed(2);
+    const discount = input.percent; //Math.round((product.price * input.percent) / 100);
+    const finalPrice = +(product.price - discount * product.price).toFixed(2);
 
     if (finalPrice < 0.01) {
       throw new UnprocessableEntityException(

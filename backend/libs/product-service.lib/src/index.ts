@@ -7,6 +7,7 @@ export * from './lib/presentation/dtos/create-product.dto';
 export * from './lib/presentation/dtos/show-product.dto';
 export * from './lib/presentation/dtos/restore-product.dto';
 export * from './lib/presentation/dtos/soft-delete-product.dto';
+export * from './lib/presentation/dtos/update-product.dto';
 
 
 

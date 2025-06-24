@@ -1,6 +1,7 @@
 // libs/coupon-service.lib/src/lib/domain/entities/coupon.entity.ts
 import { UnprocessableEntityException } from '@erp-product-coupon/pipe-config';
 import { CreateCouponInput } from '../interfaces/create-coupon.input';
+import { BadRequestException } from '@nestjs/common';
 
 export class Coupon {
   private constructor(
@@ -24,11 +25,14 @@ export class Coupon {
   public static validate(
     props: CreateCouponInput ): void {
     const { type, value, maxUses,validFrom, validUntil,code } = props;
+
     if (code.length <4 || code.length > 20) {
       throw new UnprocessableEntityException(
         'Código do cupom inválido. O nome do cupom deve estar entre 4 e 20'
       );
     }
+
+    if(["admin", "auth", "null", "undefined"].some(str => code.includes(str))) throw new BadRequestException("Código indisponível")
 
     if (type !== 'percent' && type !== 'fixed') {
       throw new UnprocessableEntityException(

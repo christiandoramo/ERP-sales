@@ -16,6 +16,8 @@ import { ApplyPercentDiscountUseCase } from './application/use-cases/apply-perce
 import { ShowProductUseCase } from './application/use-cases/show-product.use-case';
 import { RestoreProductUseCase } from './application/use-cases/restore-product.use-case';
 import { SoftDeleteProductUseCase } from './application/use-cases/soft-delete.use-case';
+import { RemoveProductDiscountUseCase } from './application/use-cases/remove-discount.use-case';
+import { UpdateProductUseCase } from './application/use-cases/update-product.use-case';
 
 @Module({
   imports: [EnvConfigModule.forRoot(), PrismaModule, CouponServiceLibModule],
@@ -33,6 +35,8 @@ import { SoftDeleteProductUseCase } from './application/use-cases/soft-delete.us
     ShowProductUseCase,
     RestoreProductUseCase,
     SoftDeleteProductUseCase,
+    RemoveProductDiscountUseCase,
+    UpdateProductUseCase,
   ],
   exports: [
     HelloWorldUseCase,
@@ -42,6 +46,8 @@ import { SoftDeleteProductUseCase } from './application/use-cases/soft-delete.us
     ShowProductUseCase,
     RestoreProductUseCase,
     SoftDeleteProductUseCase,
+    RemoveProductDiscountUseCase,
+    UpdateProductUseCase,
   ],
 })
 export class ProductServiceLibModule {}
