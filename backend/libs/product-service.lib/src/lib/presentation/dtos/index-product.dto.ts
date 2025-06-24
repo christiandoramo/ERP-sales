@@ -42,6 +42,7 @@ export const productItemSchema = z.object({
   hasCouponApplied: z.boolean().default(false),
   createdAt: z.string(),
   updatedAt: z.string(),
+  deletedAt: z.string().optional(),
 });
 
 export const metaSchema = z.object({

@@ -15,10 +15,11 @@ export interface ProductListItemOutput {
   } | null;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt: Date | null;
 }
 
 export interface IndexProductsOutput {
-  data: ProductListItemOutput[] | null;
+  data: ProductListItemOutput[];
   meta: {
     page: number;
     limit: number;

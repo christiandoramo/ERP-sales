@@ -77,73 +77,125 @@ export class DbProductRepository implements ProductRepository {
     });
   }
 
-async getProductWithDiscount(productId: number): Promise<ProductWithDiscount | null> {
-  // Dispara as 3 queries em paralelo
-  const [
-    productWithoutDiscount,
-    couponApplication,
-    percentDiscount
-  ] = await Promise.all([
-    this.prisma.product.findUnique({ where: { id: productId } }),
-    this.prisma.productCouponApplication.findFirst({
-      where: { productId, removedAt: null },
-      orderBy: { appliedAt: 'desc' },
-      include: { coupon: true },
-    }),
-    this.prisma.productPercentDiscount.findFirst({
-      where: { productId },
-      orderBy: { appliedAt: 'desc' },
-    }),
-  ]);
+  async getProductWithDiscount(
+    productId: number
+  ): Promise<ProductWithDiscount | null> {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      include: {
+        Applications: {
+          where: { removedAt: null },
+          orderBy: { appliedAt: 'desc' },
+          take: 1,
+          include: { coupon: true },
+        },
+        PercentDiscounts: {
+          orderBy: { appliedAt: 'desc' },
+          take: 1,
+        },
+      },
+    });
 
-  if (!productWithoutDiscount) return null;
+    if (!product) return null;
 
-  let discount: DiscountInterface | null = null;
+    const couponApplication = product.Applications?.[0];
+    const percentDiscount = product.PercentDiscounts?.[0];
 
-  if (!!couponApplication) {
-    discount = {
-      type: couponApplication.coupon.type,
-      value: couponApplication.coupon.value.toNumber(),
-      appliedAt: couponApplication.appliedAt,
-    };
-  } else if (!!percentDiscount) {
-    discount = {
-      type: 'percent',
-      value: percentDiscount.value,
-      appliedAt: percentDiscount.appliedAt,
-    };
+    let discount: DiscountInterface | null = null;
+
+    if (couponApplication) {
+      discount = {
+        type: couponApplication.coupon.type,
+        value: couponApplication.coupon.value.toNumber(),
+        appliedAt: couponApplication.appliedAt,
+      };
+    } else if (percentDiscount) {
+      discount = {
+        type: 'percent',
+        value: percentDiscount.value,
+        appliedAt: percentDiscount.appliedAt,
+      };
+    }
+
+    return new ProductWithDiscount(
+      product.id,
+      product.name,
+      product.stock,
+      product.price.toNumber(),
+      product.createdAt,
+      product.updatedAt,
+      product.deletedAt,
+      product.description,
+      discount
+    );
+
+    // Dispara as 3 queries em paralelo
+    // const [
+    //   productWithoutDiscount,
+    //   couponApplication,
+    //   percentDiscount
+    // ] = await Promise.all([
+    //   this.prisma.product.findUnique({ where: { id: productId } }),
+    //   this.prisma.productCouponApplication.findFirst({
+    //     where: { productId, removedAt: null },
+    //     orderBy: { appliedAt: 'desc' },
+    //     include: { coupon: true },
+    //   }),
+    //   this.prisma.productPercentDiscount.findFirst({
+    //     where: { productId },
+    //     orderBy: { appliedAt: 'desc' },
+    //   }),
+    // ]);
+
+    // if (!productWithoutDiscount) return null;
+
+    // let discount: DiscountInterface | null = null;
+
+    // if (!!couponApplication) {
+    //   discount = {
+    //     type: couponApplication.coupon.type,
+    //     value: couponApplication.coupon.value.toNumber(),
+    //     appliedAt: couponApplication.appliedAt,
+    //   };
+    // } else if (!!percentDiscount) {
+    //   discount = {
+    //     type: 'percent',
+    //     value: percentDiscount.value,
+    //     appliedAt: percentDiscount.appliedAt,
+    //   };
+    // }
+
+    // return new ProductWithDiscount(
+    //   productWithoutDiscount.id,
+    //   productWithoutDiscount.name,
+    //   productWithoutDiscount.stock,
+    //   productWithoutDiscount.price.toNumber(),
+    //   productWithoutDiscount.createdAt,
+    //   productWithoutDiscount.updatedAt,
+    //   productWithoutDiscount.deletedAt,
+    //   productWithoutDiscount.description,
+    //   discount
+    // );
   }
 
-  return new ProductWithDiscount(
-    productWithoutDiscount.id,
-    productWithoutDiscount.name,
-    productWithoutDiscount.stock,
-    productWithoutDiscount.price.toNumber(),
-    productWithoutDiscount.createdAt,
-    productWithoutDiscount.updatedAt,
-    productWithoutDiscount.deletedAt,
-    productWithoutDiscount.description,
-    discount
-  );
-}
-
   async applyCouponToProduct({
-  productId,
-  couponId,
-}: ApplyCouponToProductInput): Promise<void> {
-  await this.prisma.$transaction([ // TRANsaction não pode aplicar coupon sem registrar o uso - "ACID"
-    this.prisma.productCouponApplication.create({
-      data: {
-        productId,
-        couponId,
-      },
-    }),
-    this.prisma.coupon.update({
-      where: { id: couponId },
-      data: { usesCount: { increment: 1 } },
-    }),
-  ]);
-}
+    productId,
+    couponId,
+  }: ApplyCouponToProductInput): Promise<void> {
+    await this.prisma.$transaction([
+      // TRANsaction não pode aplicar coupon sem registrar o uso - "ACID"
+      this.prisma.productCouponApplication.create({
+        data: {
+          productId,
+          couponId,
+        },
+      }),
+      this.prisma.coupon.update({
+        where: { id: couponId },
+        data: { usesCount: { increment: 1 } },
+      }),
+    ]);
+  }
 
   async applyDiscount({
     // aqui realmente tem que salvar o desconto percentual - não é o valor final
@@ -158,7 +210,85 @@ async getProductWithDiscount(productId: number): Promise<ProductWithDiscount | n
     });
   }
 
-  async indexProducts(input: IndexProductsInput): Promise<IndexProductsOutput> {
+  // async indexProducts(input: IndexProductsInput): Promise<IndexProductsOutput> {
+  //   const {
+  //     page = 1,
+  //     limit = 10,
+  //     search,
+  //     minPrice,
+  //     maxPrice,
+  //     sortBy = 'createdAt',
+  //     sortOrder = 'desc',
+  //     includeDeleted = false,
+  //     onlyOutOfStock = false,
+  //   } = input;
+
+  //   const where: any = {
+  //     ...(search && { name: { contains: search, mode: 'insensitive' } }),
+  //     ...(minPrice !== undefined || maxPrice !== undefined
+  //       ? {
+  //           price: {
+  //             ...(minPrice !== undefined && { gte: minPrice }),
+  //             ...(maxPrice !== undefined && { lte: maxPrice }),
+  //           },
+  //         }
+  //       : {}),
+  //     ...(onlyOutOfStock && { stock: 0 }),
+  //     ...(includeDeleted ? {} : { deletedAt: null }),
+  //   };
+
+  //   const [totalItems, items] = await this.prisma.$transaction([
+  //     this.prisma.product.count({ where }),
+  //     this.prisma.product.findMany({
+  //       where,
+  //       orderBy: { [sortBy]: sortOrder },
+  //       skip: (page - 1) * limit,
+  //       take: limit,
+  //     }),
+  //   ]);
+
+  //   let discount: DiscountInterface | null = null;
+  //   const data: any[] | ProductListItemOutput[] = await Promise.all(
+  //     items.map(async (item) => {
+  //       const fullProduct = await this.getProductWithDiscount(item.id);
+  //       if (!fullProduct) return null;
+  //       discount = fullProduct?.discount ?? null;
+  //       const finalPrice = discount
+  //         ? discount.type === 'fixed'
+  //           ? fullProduct.price - discount.value
+  //           : fullProduct.price * (1 - discount.value / 100)
+  //         : fullProduct.price;
+
+  //       return {
+  //         id: fullProduct.id,
+  //         name: fullProduct.name,
+  //         description: fullProduct.description,
+  //         stock: fullProduct.stock,
+  //         isOutOfStock: fullProduct.stock === 0,
+  //         price: fullProduct.price,
+  //         finalPrice: Math.max(0, Math.round(finalPrice * 100) / 100), // 2 casas decimais
+  //         hasCouponApplied: !!discount,
+  //         discount,
+  //         createdAt: fullProduct.createdAt,
+  //         updatedAt: fullProduct.updatedAt,
+  //       };
+  //     })
+  //   );
+
+  //   return {
+  //     data,
+  //     meta: {
+  //       page,
+  //       limit,
+  //       totalItems,
+  //       totalPages: Math.ceil(totalItems / limit),
+  //     },
+  //   };
+  // }
+
+  async indexProducts(
+    params: IndexProductsInput
+  ): Promise<ProductWithDiscount[]> {
     const {
       page = 1,
       limit = 10,
@@ -169,8 +299,7 @@ async getProductWithDiscount(productId: number): Promise<ProductWithDiscount | n
       sortOrder = 'desc',
       includeDeleted = false,
       onlyOutOfStock = false,
-    } = input;
-  
+    } = params;
 
     const where: any = {
       ...(search && { name: { contains: search, mode: 'insensitive' } }),
@@ -185,9 +314,8 @@ async getProductWithDiscount(productId: number): Promise<ProductWithDiscount | n
       ...(onlyOutOfStock && { stock: 0 }),
       ...(includeDeleted ? {} : { deletedAt: null }),
     };
-    
 
-    const [totalItems, items] = await this.prisma.$transaction([
+    const [totalItems, products] = await this.prisma.$transaction([
       this.prisma.product.count({ where }),
       this.prisma.product.findMany({
         where,
@@ -197,43 +325,24 @@ async getProductWithDiscount(productId: number): Promise<ProductWithDiscount | n
       }),
     ]);
 
+    const fullProducts = await Promise.all(
+      products.map((p) => this.getProductWithDiscount(p.id))
+    );
 
-    let discount:DiscountInterface | null = null
-    const data: any[] | ProductListItemOutput[] = await Promise.all(
-      items.map(async (item) => {
-        const fullProduct = await this.getProductWithDiscount(item.id);
-        if (!fullProduct) return null;
-        discount = fullProduct?.discount ?? null;
-        const finalPrice = discount
-          ? discount.type === 'fixed'
-            ? fullProduct.price - discount.value
-            : fullProduct.price * (1 - discount.value / 100)
-          : fullProduct.price;
+    return fullProducts.filter(Boolean) as ProductWithDiscount[]; // remove nulls
+  }
 
-        return {
-          id: fullProduct.id,
-          name: fullProduct.name,
-          description: fullProduct.description,
-          stock: fullProduct.stock,
-          isOutOfStock: fullProduct.stock === 0,
-          price: fullProduct.price,
-          finalPrice: Math.max(0, Math.round(finalPrice * 100) / 100), // 2 casas decimais
-          hasCouponApplied: !!discount,
-          discount,
-          createdAt: fullProduct.createdAt,
-          updatedAt: fullProduct.updatedAt,
-        };
-      })
-    )
+  async softDeleteProduct(id: number): Promise<void> {
+    await this.prisma.product.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+  }
 
-    return {
-      data,
-      meta: {
-        page,
-        limit,
-        totalItems,
-        totalPages: Math.ceil(totalItems / limit),
-      },
-    };
+  async restoreProduct(id: number): Promise<void> {
+    await this.prisma.product.update({
+      where: { id },
+      data: { deletedAt: null },
+    });
   }
 }

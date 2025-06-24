@@ -9,6 +9,8 @@ import {
   Get,
   Query,
   Param,
+  ParseIntPipe,
+  Delete,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
@@ -17,11 +19,19 @@ import {
   createProductSchema,
   CreateProductOkResponseDto,
   createProductOkResponseSchema,
+  showProductOutputSchema,
+  showProductValidationPipe,
+  ShowProductDto,
+  ShowProductOutputDto,
+  SoftDeleteOutputDto,
+  RestoreOutputDto,
 } from '@erp-product-coupon/product-service.lib';
 import { firstValueFrom } from 'rxjs';
 import { zodToOpenAPI } from 'nestjs-zod';
 import {
   ApiBody,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiParam,
   ApiQuery,
@@ -136,19 +146,17 @@ export class ProductController {
     @Param('id') id: number,
     @Body(applyCouponHttpValidationPipe) body: ApplyCouponHttpDto
   ): Promise<ApplyCouponResponseDto> {
-    console.log("aqui: 1")
-
     return await firstValueFrom(
       this.client.send('product.apply-coupon', {
         productId: +id,
-        couponCode: body.couponCode
-     })
+        couponCode: body.couponCode,
+      })
     );
   }
 
   @Post(':id/discount/percent')
   @HttpCode(200)
-    @ApiParam({
+  @ApiParam({
     name: 'id',
     description: 'ID do produto',
     type: 'int',
@@ -183,5 +191,41 @@ export class ProductController {
         percent: body.percent,
       })
     );
+  }
+
+  @Get(':id')
+  @HttpCode(200)
+  @ApiOkResponse({
+    description: 'Produto retornado com sucesso',
+    schema: zodToOpenAPI(showProductOutputSchema),
+  })
+  async showProduct(
+    @Param(showProductValidationPipe) params: ShowProductDto
+  ): Promise<ShowProductOutputDto> {
+    return await firstValueFrom(
+      this.client.send('product.show-product', params)
+    );
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: 'Produto inativado com sucesso' })
+  @ApiNotFoundResponse({ description: 'Produto não encontrado ou já inativo' })
+  async softDeleteProduct(
+    @Param('id', ParseIntPipe) id: number
+  ): Promise<void> {
+    await firstValueFrom(
+      this.client.send('product.soft.delete', { id })
+    );
+  }
+
+  @Post(':id/restore')
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: 'Produto restaurado com sucesso' })
+  @ApiNotFoundResponse({ description: 'Produto não encontrado ou já ativo' })
+  async restoreProduct(
+    @Param('id', ParseIntPipe) id: number
+  ): Promise<void> {
+    await firstValueFrom(this.client.send('product.restore', { id }));
   }
 }

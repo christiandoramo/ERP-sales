@@ -13,6 +13,9 @@ import { IndexProductsUseCase } from './application/use-cases/index-product.use-
 import { CouponServiceLibModule } from '@erp-product-coupon/coupon-service.lib';
 import { ApplyCouponUseCase } from './application/use-cases/apply-coupon.use-case';
 import { ApplyPercentDiscountUseCase } from './application/use-cases/apply-percent-discount.use-case';
+import { ShowProductUseCase } from './application/use-cases/show-product.use-case';
+import { RestoreProductUseCase } from './application/use-cases/restore-product.use-case';
+import { SoftDeleteProductUseCase } from './application/use-cases/soft-delete.use-case';
 
 @Module({
   imports: [EnvConfigModule.forRoot(), PrismaModule, CouponServiceLibModule],
@@ -27,12 +30,18 @@ import { ApplyPercentDiscountUseCase } from './application/use-cases/apply-perce
     IndexProductsUseCase,
     ApplyCouponUseCase,
     ApplyPercentDiscountUseCase,
+    ShowProductUseCase,
+    RestoreProductUseCase,
+    SoftDeleteProductUseCase,
   ],
   exports: [
     HelloWorldUseCase,
     CreateProductUseCase,
     ApplyCouponUseCase,
     ApplyPercentDiscountUseCase,
+    ShowProductUseCase,
+    RestoreProductUseCase,
+    SoftDeleteProductUseCase,
   ],
 })
 export class ProductServiceLibModule {}

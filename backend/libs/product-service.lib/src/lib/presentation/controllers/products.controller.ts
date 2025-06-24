@@ -30,6 +30,13 @@ import { ApplyPercentDiscountUseCase } from '../../application/use-cases/apply-p
 import { ApplyCouponUseCase } from '../../application/use-cases/apply-coupon.use-case';
 import { ApplyCouponInput } from '../../domain/interfaces/apply-coupon';
 import { ApplyPercentDiscountInput } from '../../domain/interfaces/apply-percent-discount';
+import { ShowProductUseCase } from '../../application/use-cases/show-product.use-case';
+import {
+  ShowProductDto,
+  showProductValidationPipe,
+} from '../dtos/show-product.dto';
+import { SoftDeleteProductUseCase } from '../../application/use-cases/soft-delete.use-case';
+import { RestoreProductUseCase } from '../../application/use-cases/restore-product.use-case';
 
 @Controller()
 export class ProductController {
@@ -37,7 +44,10 @@ export class ProductController {
     private readonly createProductUseCase: CreateProductUseCase,
     private readonly indexProductsUseCase: IndexProductsUseCase,
     private readonly applyCouponUseCase: ApplyCouponUseCase,
-    private readonly applyPercentDiscountUseCase: ApplyPercentDiscountUseCase
+    private readonly applyPercentDiscountUseCase: ApplyPercentDiscountUseCase,
+    private readonly showProductUseCase: ShowProductUseCase,
+    private readonly softDeleteProductUseCase: SoftDeleteProductUseCase,
+    private readonly restoreProductUseCase: RestoreProductUseCase
   ) {}
 
   @MessagePattern('product.create')
@@ -69,8 +79,6 @@ export class ProductController {
   async handleApplyCoupon(
     @Payload(applyCouponValidationPipe) payload: ApplyCouponDto
   ) {
-        console.log("aqui: 2")
-
     const { couponCode, productId } = payload;
     return wrapRpc(() =>
       this.applyCouponUseCase.execute({
@@ -92,5 +100,34 @@ export class ProductController {
         productId,
       })
     )();
+  }
+
+  @MessagePattern('product.show-product')
+  async showProduct(
+    @Payload(showProductValidationPipe)
+    payload: ShowProductDto
+  ) {
+    return wrapRpc(() =>
+      this.showProductUseCase.execute({
+        id: +payload.id,
+      })
+    )();
+  }
+
+  @MessagePattern('product.soft.delete')
+  async handleSoftDelete(@Payload() payload: { id: number }) {
+    const { id } = payload
+    console.log('aqui: 2', id, typeof id);
+
+    return wrapRpc(async () => {
+      return await this.softDeleteProductUseCase.execute(+id);
+    })();
+  }
+
+  @MessagePattern('product.restore')
+  async handleRestore(@Payload() payload: { id: number }) {
+    return wrapRpc(async () => {
+      return await this.restoreProductUseCase.execute(+payload.id);
+    })();
   }
 }
