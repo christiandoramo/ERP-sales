@@ -17,6 +17,7 @@ import { OverlayLoader } from "../components/shared/layout/OverlayLoader";
 import { useUpdateProduct } from "@/lib/hooks/use-update-product";
 import { UpdateProductPatchDto } from "@/lib/schemas/update-product";
 import { useProductStore } from "@/lib/store/product-store";
+import { MaskedCurrencyInput } from "../components/shared/inputs/MaskedInputCurrency";
 
 export function ProductUpdateSection() {
   const { selectedProduct, setSelectedProduct } = useProductStore();
@@ -46,97 +47,6 @@ export function ProductUpdateSection() {
     },
   });
 
-  const formatCurrency = (
-    value: number | undefined,
-    currency: "brl" | "usd"
-  ) => {
-    const formatter = new Intl.NumberFormat(
-      currency === "brl" ? "pt-BR" : "en-US",
-      {
-        style: "currency",
-        currency: currency === "brl" ? "BRL" : "USD",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }
-    );
-    return formatter.format(Math.max(value ?? 0.01, 0.01));
-  };
-
-  const handlePriceKey = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    currentValue: number
-  ) => {
-    e.preventDefault();
-    const key = e.key;
-
-    let digits = String(Math.round((currentValue || 0.01) * 100));
-
-    if (/^[0-9]$/.test(key)) {
-      if (isFirstInput) {
-        if (key === "0") return;
-        setValue("price", parseInt(key, 10) / 100);
-        setIsFirstInput(false);
-        return;
-      }
-
-      if (digits.length >= 9) return;
-      digits += key;
-      const newValue = parseInt(digits, 10) / 100;
-      setValue("price", Math.min(newValue, 1000000));
-    }
-
-    if (key === "Backspace") {
-      digits = digits.slice(0, -1);
-      if (!digits) {
-        setValue("price", 0.01);
-        setIsFirstInput(true);
-      } else {
-        const newValue = parseInt(digits, 10) / 100;
-        setValue("price", Math.max(newValue, 0.01));
-      }
-    }
-  };
-
-  // const onSubmit = async (data: CreateProductDto) => {
-  //   setLoading(true);
-  //   const delay = new Promise((r) => setTimeout(r, 1500));
-
-  //   const current = {
-  //     name: initialProduct.name,
-  //     description: initialProduct.description ?? "",
-  //     stock: initialProduct.stock,
-  //     price: initialProduct.price,
-  //     isActive: !initialProduct.deletedAt,
-  //   };
-
-  //   const updated = {
-  //     name: data.name,
-  //     description: data.description ?? "",
-  //     stock: data.stock,
-  //     price: data.price,
-  //     isActive: !initialProduct.deletedAt,
-  //   };
-
-  //   const patch = compare(current, updated) as UpdateProductPatchDto;
-
-  //   try {
-  //     if (patch.length > 0) {
-  //       await Promise.all([
-  //         updateMutation.mutateAsync({ id: initialProduct.id, patch }),
-  //         delay,
-  //       ]);
-
-  //       showSuccess("Produto atualizado com sucesso!");
-  //     } else {
-  //       showSuccess("Nenhuma alteração detectada.");
-  //     }
-  //     setSection("products");
-  //   } catch (err) {
-  //     showError(err, "Erro ao atualizar produto.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const onSubmit = async (data: CreateProductDto) => {
     setLoading(true);
 
@@ -190,7 +100,7 @@ export function ProductUpdateSection() {
 
       <div className="flex items-center mb-6 ml-4">
         <ShoppingOutlined className="text-xl mr-2 text-black" />
-        <h2 className="text-xl font-bold text-black">Atualização de Produto</h2>
+        <h2 className="text-xl font-bold text-black">Editar Produto</h2>
       </div>
 
       <div className="p-6 bg-white rounded-xl shadow-md">
@@ -252,11 +162,10 @@ export function ProductUpdateSection() {
                   name="price"
                   control={control}
                   render={({ field }) => (
-                    <Input
-                      {...field}
-                      value={formatCurrency(field.value, currency)}
-                      onChange={() => {}}
-                      onKeyDown={(e) => handlePriceKey(e, field.value ?? 0.01)}
+                    <MaskedCurrencyInput
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
                     />
                   )}
                 />

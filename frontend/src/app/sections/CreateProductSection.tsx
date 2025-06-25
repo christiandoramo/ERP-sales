@@ -14,6 +14,7 @@ import { useSectionStore } from "@/lib/store/section-store";
 import { useLoading } from "@/lib/hooks/use-loading";
 import { useRequestModals } from "@/lib/hooks/use-request-modals";
 import { OverlayLoader } from "../components/shared/layout/OverlayLoader";
+import { MaskedCurrencyInput } from "../components/shared/inputs/MaskedInputCurrency";
 
 export function CreateProductSection() {
   const { setSection } = useSectionStore();
@@ -54,63 +55,7 @@ export function CreateProductSection() {
     }
   };
 
-  const handlePriceKey = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    currentValue: number
-  ) => {
-    e.preventDefault();
-    const key = e.key;
-
-    // Estado atual em centavos
-    let digits = String(Math.round((currentValue || 0.01) * 100));
-
-    // Se é dígito numérico
-    if (/^[0-9]$/.test(key)) {
-      if (isFirstInput) {
-        if (key === "0") return; // não substitui por 0
-        // Substitui o "1" do 0.01 pelo primeiro número
-        setValue("price", parseInt(key, 10) / 100);
-        setIsFirstInput(false);
-        return;
-      }
-
-      if (digits.length >= 9) return;
-      digits += key;
-      const newValue = parseInt(digits, 10) / 100;
-      setValue("price", Math.min(newValue, 1000000));
-    }
-
-    // Backspace
-    if (key === "Backspace") {
-      digits = digits.slice(0, -1);
-      if (!digits) {
-        setValue("price", 0.01);
-        setIsFirstInput(true);
-      } else {
-        const newValue = parseInt(digits, 10) / 100;
-        setValue("price", Math.max(newValue, 0.01));
-      }
-    }
-  };
-
   const [isFirstInput, setIsFirstInput] = useState(true);
-
-  const formatCurrency = (
-    value: number | undefined,
-    currency: "brl" | "usd"
-  ) => {
-    const formatter = new Intl.NumberFormat(
-      currency === "brl" ? "pt-BR" : "en-US",
-      {
-        style: "currency",
-        currency: currency === "brl" ? "BRL" : "USD",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }
-    );
-
-    return formatter.format(Math.max(value ?? 0.01, 0.01));
-  };
 
   return (
     <>
@@ -188,11 +133,10 @@ export function CreateProductSection() {
                   name="price"
                   control={control}
                   render={({ field }) => (
-                    <Input
-                      {...field}
-                      value={formatCurrency(field.value, currency)}
-                      onChange={() => {}}
-                      onKeyDown={(e) => handlePriceKey(e, field.value ?? 0.01)}
+                    <MaskedCurrencyInput
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
                     />
                   )}
                 />

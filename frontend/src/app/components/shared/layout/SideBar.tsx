@@ -56,7 +56,7 @@ export function Sidebar() {
       <div className="p-4 border-t border-gray-200">
         <button
           onClick={() => router.push("/")}
-          className="flex items-center gap-2 text-red-500 hover:text-red-600"
+          className="flex cursor-pointer items-center gap-2 text-red-500 hover:text-red-600"
         >
           <LogoutOutlined />
           Sair

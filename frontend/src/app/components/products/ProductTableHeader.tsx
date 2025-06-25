@@ -3,6 +3,7 @@
 
 import { Button, Input } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
+import { MaskedCurrencyInput } from "../shared/inputs/MaskedInputCurrency";
 
 // Removido handleMinMaxPrice pois não é mais necessário separadamente
 
@@ -27,53 +28,40 @@ export function ProductTableHeader({
 }) {
   return (
     <div className="flex flex-row items-center justify-between mb-4">
-      <span className="font-semibold text-black dark:text-white text-2xl">
-        Lista de produtos
+      <span className="font-semibold text-black text-2xl">
+        Produtos
       </span>
       <div className="flex gap-4 items-center">
-        <div className="flex flex-wrap items-end gap-4 bg-white p-4 rounded-md shadow-sm">
+        <div className="flex flex-row flex-wrap items-end gap-4 bg-white p-4 rounded-md shadow-sm">
           {/* Mínimo */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700">
               Preço mínimo
             </label>
-            <Input
-              type="text"
-              value={minPrice.toFixed(2)}
-              onChange={(e) => {
-                const raw = parseFloat(e.target.value.replace(",", "."));
-                setMinPrice(Math.max(0.01, Math.min(raw || 0.01, maxPrice)));
+            <MaskedCurrencyInput
+              value={minPrice}
+              onChange={(val) => {
+                const next = Math.min(val, maxPrice);
+                setMinPrice(Math.max(0.01, next));
               }}
-              onBlur={() => {
-                if (minPrice > maxPrice) setMinPrice(maxPrice);
-              }}
-              className="w-32"
             />
           </div>
 
-          {/* Máximo */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700">
               Preço máximo
             </label>
-            <Input
-              type="text"
-              value={maxPrice.toFixed(2)}
-              onChange={(e) => {
-                const raw = parseFloat(e.target.value.replace(",", "."));
-                setMaxPrice(
-                  Math.min(1000000, Math.max(raw || 1000000, minPrice))
-                );
+
+            <MaskedCurrencyInput
+              value={maxPrice}
+              onChange={(val) => {
+                const next = Math.max(val, minPrice);
+                setMaxPrice(Math.min(1000000, next));
               }}
-              onBlur={() => {
-                if (maxPrice < minPrice) setMaxPrice(minPrice);
-              }}
-              className="w-32"
             />
           </div>
         </div>
 
-        {/* Campo de nome */}
         <Input
           placeholder="Busque pelo nome"
           value={searchText}
