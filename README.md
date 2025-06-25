@@ -11,7 +11,7 @@ docker compose up -d (ou criar um postgres com as credencias válidas como no en
 pnpm prisma generate --schema=shared/prisma-config/prisma/schema.prisma
 pnpm run erp:migrate
 pnpm run erp:seed
-nx run-many --target=serve --projects=coupon-service,product-service,api-gateway
+nx run-many --target=serve --projects=api-gateway,coupon-service,product-service
 ```
 
 ### Fase de Pesquisa

@@ -30,3 +30,16 @@
   loading: boolean;
   setLoading: (value: boolean) => void;
 }
+
+interface ProductForUpdate {
+  id: number;
+  name: string;
+  description: string | null;
+  stock: number;
+  price: number;
+  deletedAt: string | null;
+}
+
+interface Props {
+  initialProduct: ProductForUpdate;
+}

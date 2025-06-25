@@ -7,11 +7,12 @@ import { useProductQuery } from "@/lib/hooks/use-products-query";
 import { useProductStore } from "@/lib/store/product-store";
 import { useLoading } from "@/lib/hooks/use-loading";
 import { getProductTableColumn } from "@/app/components/products/ProductTableColumn";
-import { ProductTableHeader } from "./ProductTableHeader";
-import { OverlayLoader } from "../shared/OverlayLoader";
+import { ProductTableHeader } from "./../components/products/ProductTableHeader";
+import { OverlayLoader } from "./../components/shared/layout/OverlayLoader";
 import { ProductItem } from "@/lib/schemas/index-products";
+import { GoToCreateProductButton } from "./../components/shared/buttons/GoToCreateProductButton";
 
-export function ProductTable() {
+export function ProductsSection() {
   const { filters, setFilters, products, meta } = useProductStore();
   const { isFetching } = useProductQuery();
   const { loading, setLoading } = useLoading();
@@ -32,7 +33,6 @@ export function ProductTable() {
 
   const handleChange: TableProps<ProductItem>["onChange"] = (
     pagination,
-    _filters,
     sorter,
     _extra
   ) => {
@@ -78,42 +78,35 @@ export function ProductTable() {
   return (
     <div>
       <OverlayLoader loading={loading} />
-      <Button
-  className="bg-black text-white dark:bg-white dark:text-black border-none hover:opacity-90 transition-all"
-  onClick={() => setSection('create')}
-  icon={<span className="font-bold text-lg mr-2">+</span>}
->
-  Criar produto
-</Button>
+      <GoToCreateProductButton loading={loading} />
       <ProductTableHeader total={tableTotal} onClear={handleClearFilters} />
       {loading && products.length === 0 ? (
-  <div className="space-y-4">
-    {Array.from({ length: 10 }).map((_, idx) => (
-      <div
-        key={idx}
-        className="h-12 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-md"
-      />
-    ))}
-  </div>
-) : (
-  <Table
-    rowKey="id"
-    dataSource={products}
-    columns={getProductTableColumn({
-      searchText,
-      setSearchText,
-      searchedColumn,
-      setSearchedColumn,
-      showModal: (id: any) => console.log("Abrir modal para ID:", id),
-      searchInput,
-    })}
-    pagination={pagination}
-    loading={loading}
-    onChange={handleChange}
-    scroll={{ x: 400 }}
-  />
-)}
-
+        <div className="space-y-4">
+          {Array.from({ length: 10 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="h-12 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-md"
+            />
+          ))}
+        </div>
+      ) : (
+        <Table
+          rowKey="id"
+          dataSource={products}
+          columns={getProductTableColumn({
+            searchText,
+            setSearchText,
+            searchedColumn,
+            setSearchedColumn,
+            showModal: (id: any) => console.log("Abrir modal para ID:", id),
+            searchInput,
+          })}
+          pagination={pagination}
+          loading={loading}
+          onChange={handleChange}
+          scroll={{ x: 400 }}
+        />
+      )}
     </div>
   );
 }
@@ -150,8 +143,6 @@ export function ProductTable() {
 //   const [searchText, setSearchText] = useState('');
 //   const [searchedColumn, setSearchedColumn] = useState('');
 
-
-
 // const didMount = useRef(false); // para remontar o form
 
 // useEffect(() => {
@@ -170,7 +161,6 @@ export function ProductTable() {
 //     didMount.current = true;
 //   }
 // }, []);
-
 
 //   useEffect(() => {
 //     setLoading(isFetching);
@@ -226,7 +216,6 @@ export function ProductTable() {
 //   // sempre força atualização (evita cache igual)
 //   setFilters({ ...payload });
 // };
-
 
 //   return (
 //     <div>

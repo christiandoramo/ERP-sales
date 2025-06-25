@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@import "antd/dist/reset.css"; 
 /* globals.css */
 
 :root {
@@ -16,4 +16,8 @@ body {
   background-color: var(--bg);
   color: var(--text);
   transition: background-color 0.2s ease, color 0.2s ease;
+  /* teste */
+    overflow-x: hidden;
+  position: relative;
+  z-index: 0;
 }
