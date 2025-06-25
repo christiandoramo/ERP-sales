@@ -11,13 +11,13 @@ async function main() {
   const total = await prisma.product.count();
   if (total > 0) {
     console.warn(
-      `⚠️ O banco já contém ${total} produtos. Seed cancelado para evitar duplicações.`
+      `O banco já contém ${total} produtos. Seed cancelado para evitar duplicações.`
     );
     await prisma.$disconnect();
     return;
   }
 
-  const products = Array.from({ length: 20 }).map(() => ({
+  const products = Array.from({ length: 100 }).map(() => ({
     name: `${faker.commerce.productName()} ${faker.number.int(9999)}`,
     price: parseFloat(faker.commerce.price({ min: 0.01, max: 1000000 })),
     stock: faker.number.int({ min: 0, max: 999_999 }),

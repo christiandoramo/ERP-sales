@@ -16,11 +16,15 @@ import {
 } from "@ant-design/icons";
 import { FilterConfirmProps, SorterResult } from "antd/es/table/interface";
 import { formatToBRL } from "@/lib/utils/formatters";
+import { useSectionStore } from "@/lib/store/section-store";
 
 type DataIndex = keyof ProductItem;
 
 export function ProductTableContainer() {
-  const { filters, setFilters, meta } = useProductStore();
+  const { setSection } = useSectionStore();
+
+
+  const { filters, setFilters, meta,setSelectedProduct } = useProductStore();
   const { data } = useProductQuery();
   const { loading } = useLoading();
 

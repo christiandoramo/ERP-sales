@@ -9,7 +9,7 @@ export const indexProductsSchema = z.object({
   minPrice: z.coerce.number().min(0.01).optional(), // falta impedir minPrice ser maior que maxPrice
   maxPrice: z.coerce.number().max(1000000).optional(),
   hasDiscount: z.coerce.boolean().optional(),
-  sortBy: z.enum(['name', 'price','createdAt']).optional(),
+  sortBy: z.enum(['name', 'price','createdAt','stock']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
   includeDeleted: z.coerce.boolean().optional(),
   onlyOutOfStock: z.coerce.boolean().optional(),
@@ -36,6 +36,7 @@ export const productItemSchema = z.object({
   hasCouponApplied: z.boolean().default(false),
   createdAt: z.string(),
   updatedAt: z.string(),
+  deletedAt: z.string(),
 });
 
 export const metaSchema = z.object({
@@ -44,6 +45,8 @@ export const metaSchema = z.object({
   totalItems: z.number(),
   totalPages: z.number(),
 });
+
+
 
 export const indexProductsOutputSchema = z.object({
   data: z.array(productItemSchema),

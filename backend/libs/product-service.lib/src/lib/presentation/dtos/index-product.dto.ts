@@ -11,7 +11,7 @@ export const indexProductsSchema = z.object({
   minPrice: z.coerce.number().min(0.01).optional(),
   maxPrice: z.coerce.number().max(1000000).optional(),
   hasDiscount: z.coerce.boolean().optional(),
-  sortBy: z.enum(['name', 'price', 'createdAt']).optional(),
+  sortBy: z.enum(['name', 'price', 'createdAt' , 'stock']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
   includeDeleted: z.coerce.boolean().optional(),
   onlyOutOfStock: z.coerce.boolean().optional(),

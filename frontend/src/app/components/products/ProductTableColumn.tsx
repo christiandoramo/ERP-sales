@@ -1,3 +1,4 @@
+// frontend/src/app/components/products/ProductTableColumn.tsx
 "use client";
 
 import type { ColumnsType } from "antd/es/table";
@@ -10,6 +11,8 @@ import {
 } from "@ant-design/icons";
 import { getColumnSearchProps } from "./ColumnSearchProps";
 import { formatToBRL } from "@/lib/utils/formatters";
+import { useProductStore } from "@/lib/store/product-store";
+import { Section, useSectionStore } from "@/lib/store/section-store";
 
 interface Params {
   searchText: string;
@@ -18,6 +21,8 @@ interface Params {
   setSearchedColumn: (val: string) => void;
   showModal: (id: number) => void;
   searchInput: React.RefObject<InputRef | null>;
+  setSection: (section: Section) => void;
+  setSelectedProduct: (product: ProductItem) => void;
 }
 
 export const getProductTableColumn = ({
@@ -27,6 +32,8 @@ export const getProductTableColumn = ({
   setSearchedColumn,
   showModal,
   searchInput,
+  setSection,
+  setSelectedProduct,
 }: Params): ColumnsType<ProductItem> => [
   {
     title: "Nome",
@@ -88,15 +95,17 @@ export const getProductTableColumn = ({
           {hasDiscount ? (
             <div className="flex flex-row gap-1 align-middle justify-center">
               <div className="flex flex-col">
-              <span className="flex line-through text-gray-500 text-sm">
-                {formatToBRL(record?.price?.toString() || "")}
-              </span>
-              <span className="flex font-semibold text-base">
-                {formatToBRL(record?.finalPrice?.toString() || "")}
-              </span>
+                <span className="flex line-through text-gray-500 text-sm">
+                  {formatToBRL(record?.price?.toString() || "")}
+                </span>
+                <span className="flex font-semibold text-base">
+                  {formatToBRL(record?.finalPrice?.toString() || "")}
+                </span>
               </div>
               <div className="flex">
-                <span className="text-xs font-bold text-red-500 border border-red-500 rounded-full px-1">{discountDisplay}</span>
+                <span className="text-xs font-bold text-red-500 border border-red-500 rounded-full px-1">
+                  {discountDisplay}
+                </span>
               </div>
             </div>
           ) : (
@@ -115,16 +124,32 @@ export const getProductTableColumn = ({
     sorter: (a, b) => a.stock - b.stock,
   },
   {
+    title: "Criado em",
+    dataIndex: "createdAt",
+    key: "createdAt",
+    sorter: true,
+    render: (value) => {
+      const date = new Date(value);
+      return date.toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    },
+  },
+  {
     title: "Ações",
     key: "actions",
     align: "center" as const,
-    render: (_: any, record: { id: any }) => (
+    render: (_: any, record: ProductItem) => (
       <div className="flex items-center justify-center gap-2">
         <Button
           className="text-green-500 hover:text-green-700 bg-transparent border-0 shadow-none"
-          onClick={() => console.log("Editar", record.id)}
+          onClick={() => {
+            setSelectedProduct(record)
+            setSection("update-product");
+          }}
         >
-          Editar
           <EditOutlined />
         </Button>
         <Button

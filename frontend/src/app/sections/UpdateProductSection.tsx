@@ -5,7 +5,6 @@ import { Controller, useForm } from "react-hook-form";
 import { Button, Input } from "antd";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ShoppingOutlined } from "@ant-design/icons";
-import { compare } from "fast-json-patch";
 
 import {
   CreateProductDto,
@@ -17,15 +16,17 @@ import { useRequestModals } from "@/lib/hooks/use-request-modals";
 import { OverlayLoader } from "../components/shared/layout/OverlayLoader";
 import { useUpdateProduct } from "@/lib/hooks/use-update-product";
 import { UpdateProductPatchDto } from "@/lib/schemas/update-product";
-import { Props } from "@/lib/interfaces";
+import { useProductStore } from "@/lib/store/product-store";
 
+export function ProductUpdateSection() {
+  const { selectedProduct, setSelectedProduct } = useProductStore();
+  const initialProduct = selectedProduct;
 
-
-export function ProductUpdateSection({ initialProduct }: Props) {
+  if (!initialProduct) return null;
   const { setSection } = useSectionStore();
   const { loading, setLoading } = useLoading();
   const { showSuccess, showError, contextHolder } = useRequestModals();
-  const updateMutation = useUpdateProduct({id: initialProduct.id, patch:initialProduct});
+  const updateMutation = useUpdateProduct();
 
   const [currency, setCurrency] = useState<"brl" | "usd">("brl");
   const [isFirstInput, setIsFirstInput] = useState(true);
@@ -96,40 +97,85 @@ export function ProductUpdateSection({ initialProduct }: Props) {
     }
   };
 
+  // const onSubmit = async (data: CreateProductDto) => {
+  //   setLoading(true);
+  //   const delay = new Promise((r) => setTimeout(r, 1500));
+
+  //   const current = {
+  //     name: initialProduct.name,
+  //     description: initialProduct.description ?? "",
+  //     stock: initialProduct.stock,
+  //     price: initialProduct.price,
+  //     isActive: !initialProduct.deletedAt,
+  //   };
+
+  //   const updated = {
+  //     name: data.name,
+  //     description: data.description ?? "",
+  //     stock: data.stock,
+  //     price: data.price,
+  //     isActive: !initialProduct.deletedAt,
+  //   };
+
+  //   const patch = compare(current, updated) as UpdateProductPatchDto;
+
+  //   try {
+  //     if (patch.length > 0) {
+  //       await Promise.all([
+  //         updateMutation.mutateAsync({ id: initialProduct.id, patch }),
+  //         delay,
+  //       ]);
+
+  //       showSuccess("Produto atualizado com sucesso!");
+  //     } else {
+  //       showSuccess("Nenhuma alteração detectada.");
+  //     }
+  //     setSection("products");
+  //   } catch (err) {
+  //     showError(err, "Erro ao atualizar produto.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const onSubmit = async (data: CreateProductDto) => {
     setLoading(true);
-    const delay = new Promise((r) => setTimeout(r, 1500));
 
-    const current = {
-      name: initialProduct.name,
-      description: initialProduct.description ?? "",
-      stock: initialProduct.stock,
-      price: initialProduct.price,
-      isActive: !initialProduct.deletedAt,
-    };
+    // Cria um patch apenas com os campos alterados
+    const patch: UpdateProductPatchDto = [];
 
-    const updated = {
-      name: data.name,
-      description: data.description ?? "",
-      stock: data.stock,
-      price: data.price,
-      isActive: !initialProduct.deletedAt,
-    };
+    if (data.name !== initialProduct.name) {
+      patch.push({ op: "replace", path: "/name", value: data.name });
+    }
 
-    const patch = compare(current, updated) as UpdateProductPatchDto;
+    if ((data.description ?? "") !== (initialProduct.description ?? "")) {
+      patch.push({
+        op: "replace",
+        path: "/description",
+        value: data.description ?? "",
+      });
+    }
+
+    if (data.stock !== initialProduct.stock) {
+      patch.push({ op: "replace", path: "/stock", value: data.stock });
+    }
+
+    if (data.price !== initialProduct.price) {
+      patch.push({ op: "replace", path: "/price", value: data.price });
+    }
+
+    const isActive = !initialProduct.deletedAt;
+    patch.push({ op: "replace", path: "/isActive", value: isActive });
 
     try {
       if (patch.length > 0) {
-        await Promise.all([
-  updateMutation.mutateAsync({ id: initialProduct.id, patch }),
-  delay,
-]);
-
+        await updateMutation.mutateAsync({ id: initialProduct.id, patch });
         showSuccess("Produto atualizado com sucesso!");
       } else {
         showSuccess("Nenhuma alteração detectada.");
       }
-      setSection("products");
+
+      setSelectedProduct(null); // Limpa produto
+      setSection("products"); // Volta pra listagem
     } catch (err) {
       showError(err, "Erro ao atualizar produto.");
     } finally {
@@ -166,9 +212,7 @@ export function ProductUpdateSection({ initialProduct }: Props) {
               <Controller
                 name="name"
                 control={control}
-                render={({ field }) => (
-                  <Input {...field} maxLength={100} />
-                )}
+                render={({ field }) => <Input {...field} maxLength={100} />}
               />
               {errors.name && (
                 <p className="text-red-500 text-sm">{errors.name.message}</p>
@@ -212,9 +256,7 @@ export function ProductUpdateSection({ initialProduct }: Props) {
                       {...field}
                       value={formatCurrency(field.value, currency)}
                       onChange={() => {}}
-                      onKeyDown={(e) =>
-                        handlePriceKey(e, field.value ?? 0.01)
-                      }
+                      onKeyDown={(e) => handlePriceKey(e, field.value ?? 0.01)}
                     />
                   )}
                 />

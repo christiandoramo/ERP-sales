@@ -6,6 +6,9 @@ import { EnvConfigService } from '@erp-product-coupon/env-config';// não conseg
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { patchNestJsSwagger } from 'nestjs-zod';
 import { RpcExceptionInterceptor} from './app/infrastructure/interceptors/rpc-exception.interceptor'
+import * as bodyParser from 'body-parser';
+
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule,{
     cors: {
@@ -44,6 +47,9 @@ async function bootstrap() {
   // app.useGlobalInterceptors(new LocationHeaderInterceptor());
   app.useGlobalInterceptors(new RpcExceptionInterceptor());
 
+    app.use(
+    bodyParser.json({ type: ['application/json', 'application/json-patch+json'] })
+  );
   await app.listen(port);
 
   Logger.log(

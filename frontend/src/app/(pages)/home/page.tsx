@@ -7,6 +7,7 @@ import { CreateProductSection } from "@/app/sections/CreateProductSection";
 import { Sidebar } from "@/app/components/shared/layout/SideBar";
 import { Navbar } from "@/app/components/shared/layout/NavBar";
 import { useSectionStore } from "@/lib/store/section-store";
+import { ProductUpdateSection } from "@/app/sections/UpdateProductSection";
 
 export default function HomePage() {
   const { current } = useSectionStore();
@@ -18,6 +19,7 @@ export default function HomePage() {
       <main className="ml-[200px] pt-16 p-6">
         {current === "products" && <ProductsSection />}
         {current === "create-product" && <CreateProductSection />}
+        {current === "update-product" && <ProductUpdateSection />}
       </main>
     </div>
   );

@@ -14,6 +14,5 @@ export function formatToBRL(value: string): string {
 
   // Retornar no formato "R$ X,XX"
   const formatted = `R$ ${integerPart},${decimalPart}`;
-  console.log(formatted)
   return formatted
 }

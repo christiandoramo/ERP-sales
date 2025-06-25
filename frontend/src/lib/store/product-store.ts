@@ -1,5 +1,6 @@
 // src/lib/store/product-store.ts
-import { create } from 'zustand';
+import { create } from "zustand";
+import { ProductItem, Meta } from "../schemas/index-products";
 
 type ProductFilters = {
   page: number;
@@ -8,29 +9,70 @@ type ProductFilters = {
   minPrice?: number;
   maxPrice?: number;
   hasDiscount?: boolean;
-  sortBy?: 'name' | 'price' | 'createdAt';
-  sortOrder?: 'asc' | 'desc';
+  stock?: number;
+  sortBy?: "name" | "price" | "createdAt" | "stock";
+  sortOrder?: "asc" | "desc";
   includeDeleted?: boolean;
   onlyOutOfStock?: boolean;
   withCouponApplied?: boolean;
 };
 
 type ProductStore = {
+  selectedProduct: ProductItem | null;
+  setSelectedProduct: (product: ProductItem | null) => void;
   filters: ProductFilters;
-  setFilters: (filters: ProductFilters) => void;
-  products: any[];
-  setProducts: (products: any[]) => void;
-  meta: { totalItems?: number };
-  setMeta: (meta: any) => void;
+  forceUpdateKey: number;
+  setFilters: (
+    filters:
+      | Partial<ProductFilters>
+      | ((prev: ProductFilters) => ProductFilters)
+  ) => void;
+  products: ProductItem[];
+  setProducts: (products: ProductItem[]) => void;
+
+  meta: Meta;
+  setMeta: (meta: Meta) => void;
+
+  cache: Record<number, ProductItem[]>;
+  setCache: (page: number, products: ProductItem[]) => void;
 };
 
 export const useProductStore = create<ProductStore>((set) => ({
+  selectedProduct: null,
+  setSelectedProduct: (product) => set({ selectedProduct: product }),
   filters: { page: 1, limit: 10 },
-  setFilters: (filters) => set({ filters }),
+  forceUpdateKey: 0,
+
+  setFilters: (filters) =>
+    set((state) => {
+      const newFilters =
+        typeof filters === "function"
+          ? filters(state.filters)
+          : { ...state.filters, ...filters };
+
+      return {
+        filters: newFilters,
+        forceUpdateKey: state.forceUpdateKey + 1,
+      };
+    }),
+
   products: [],
   setProducts: (products) => set({ products }),
-  meta: {},
+
+  meta: {
+    page: 1,
+    limit: 10,
+    totalItems: 0,
+    totalPages: 1,
+  },
   setMeta: (meta) => set({ meta }),
+
+  cache: {},
+  setCache: (page, products) =>
+    set((state) => ({
+      cache: {
+        ...state.cache,
+        [page]: products,
+      },
+    })),
 }));
-
-

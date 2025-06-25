@@ -61,6 +61,7 @@
     "@nestjs/swagger": "github:nestjs/swagger",
     "@prisma/client": "^6.10.1",
     "axios": "^1.6.0",
+    "body-parser": "^2.2.0",
     "fast-json-patch": "^3.1.1",
     "nestjs-zod": "^4.3.1",
     "prisma": "^6.10.1",

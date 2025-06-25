@@ -37,7 +37,7 @@ export interface IndexProductsInput {
   minPrice?: number;
   maxPrice?: number;
   hasDiscount?: boolean;
-  sortBy?: 'name' | 'price' | 'createdAt';
+  sortBy?: 'name' | 'price' | 'createdAt' | 'stock';
   sortOrder?: 'asc' | 'desc';
   includeDeleted?: boolean;
   onlyOutOfStock?: boolean;

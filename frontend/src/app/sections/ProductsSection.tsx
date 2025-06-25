@@ -1,7 +1,8 @@
-// src/app/components/products/ProductTable.tsx
+// frontend/src/app/sections/ProductsSection.tsx
 "use client";
+import { useQueryClient } from "@tanstack/react-query";
 
-import { Table, Button, TableProps, InputRef } from "antd";
+import { Table, TableProps, InputRef, Input, Button } from "antd";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useProductQuery } from "@/lib/hooks/use-products-query";
 import { useProductStore } from "@/lib/store/product-store";
@@ -11,8 +12,11 @@ import { ProductTableHeader } from "./../components/products/ProductTableHeader"
 import { OverlayLoader } from "./../components/shared/layout/OverlayLoader";
 import { ProductItem } from "@/lib/schemas/index-products";
 import { GoToCreateProductButton } from "./../components/shared/buttons/GoToCreateProductButton";
+import { useSectionStore } from "@/lib/store/section-store";
 
 export function ProductsSection() {
+  const queryClient = useQueryClient();
+
   const { filters, setFilters, products, meta } = useProductStore();
   const { isFetching } = useProductQuery();
   const { loading, setLoading } = useLoading();
@@ -22,6 +26,9 @@ export function ProductsSection() {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const [tableTotal, setTableTotal] = useState(0);
+
+  const { setSection } = useSectionStore();
+  const { setSelectedProduct } = useProductStore();
 
   useEffect(() => {
     setLoading(isFetching);
@@ -33,36 +40,58 @@ export function ProductsSection() {
 
   const handleChange: TableProps<ProductItem>["onChange"] = (
     pagination,
-    sorter,
-    _extra
+    sorter
   ) => {
     const singleSorter = Array.isArray(sorter) ? sorter[0] : sorter;
 
-    if (!singleSorter?.order || !singleSorter?.field) return;
+    const newSortBy =
+      singleSorter?.order && singleSorter?.field
+        ? (singleSorter.field as "name" | "price" | "createdAt" | "stock")
+        : undefined;
 
-    setFilters({
-      page: pagination.current ?? 1,
-      limit: pagination.pageSize ?? 10,
-      sortBy: singleSorter.field as "name" | "price" | "createdAt",
-      sortOrder: singleSorter.order === "ascend" ? "asc" : "desc",
+    const newSortOrder =
+      singleSorter?.order === "ascend"
+        ? "asc"
+        : singleSorter?.order === "descend"
+        ? "desc"
+        : undefined;
+
+    setFilters((prev) => {
+      const newPage = singleSorter?.order ? 1 : pagination.current ?? prev.page;
+      console.log("Página atual: ", newPage);
+      console.log(
+        `pagination.current : ${pagination.current} ?? prev.page : ${prev.page}`
+      );
+
+      const newLimit = pagination.pageSize ?? prev.limit;
+
+      return {
+        ...prev,
+        page: newPage,
+        limit: newLimit,
+        sortBy: newSortBy,
+        sortOrder: newSortOrder,
+      };
     });
   };
 
-  const handleClearFilters = () => {
-    setFilters({
-      page: 1,
-      limit: filters.limit,
-      search: undefined,
-      minPrice: undefined,
-      maxPrice: undefined,
-      hasDiscount: undefined,
-      sortBy: "name",
-      sortOrder: "asc",
-      includeDeleted: undefined,
-      onlyOutOfStock: undefined,
-      withCouponApplied: undefined,
-    });
-  };
+  // const handleClearFilters = () => {
+  //   setSearchText("");
+  //   setFilters({
+  //     page: 1,
+  //     limit: 10,
+  //     search: undefined,
+  //     sortBy: undefined,
+  //     sortOrder: undefined,
+  //     minPrice: undefined,
+  //     maxPrice: undefined,
+  //     stock: undefined,
+  //     hasDiscount: undefined,
+  //     includeDeleted: undefined,
+  //     onlyOutOfStock: undefined,
+  //     withCouponApplied: undefined,
+  //   });
+  // };
 
   const pagination = useMemo(
     () => ({
@@ -75,17 +104,53 @@ export function ProductsSection() {
     [filters.page, filters.limit, meta?.totalItems]
   );
 
+  const [minPrice, setMinPrice] = useState(0.01);
+  const [maxPrice, setMaxPrice] = useState(1000000);
+  const handleMinMaxPrice = () => {
+    if (minPrice > maxPrice) return;
+    setFilters((prev) => ({
+      ...prev,
+      page: 1,
+      search: searchText.trim() || undefined,
+      minPrice,
+      maxPrice,
+    }));
+  };
+
+
+const handleSearch = () => {
+  if (minPrice > maxPrice) return;
+  setFilters((prev) => ({
+    ...prev,
+    page: 1,
+    search: searchText.trim() || undefined,
+    minPrice,
+    maxPrice,
+  }));
+};
+
   return (
     <div>
       <OverlayLoader loading={loading} />
+
       <GoToCreateProductButton loading={loading} />
-      <ProductTableHeader total={tableTotal} onClear={handleClearFilters} />
+      <ProductTableHeader
+      total={tableTotal}
+      searchText={searchText}
+      setSearchText={setSearchText}
+      minPrice={minPrice}
+      maxPrice={maxPrice}
+      setMinPrice={setMinPrice}
+      setMaxPrice={setMaxPrice}
+      onSearch={handleSearch}
+      />
+
       {loading && products.length === 0 ? (
         <div className="space-y-4">
           {Array.from({ length: 10 }).map((_, idx) => (
             <div
               key={idx}
-              className="h-12 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-md"
+              className="h-12 bg-gray-200 animate-pulse rounded-md"
             />
           ))}
         </div>
@@ -100,6 +165,8 @@ export function ProductsSection() {
             setSearchedColumn,
             showModal: (id: any) => console.log("Abrir modal para ID:", id),
             searchInput,
+            setSection,
+            setSelectedProduct,
           })}
           pagination={pagination}
           loading={loading}
@@ -110,200 +177,3 @@ export function ProductsSection() {
     </div>
   );
 }
-
-// 'use client';
-
-// import {
-//   Table,
-//   Button,
-//   Input,
-//   Checkbox,
-//   Select,
-//   Slider,
-//   Form,
-// } from 'antd';
-// import { useEffect, useMemo, useRef, useState } from 'react';
-// import { useProductQuery } from '@/lib/hooks/use-products-query';
-// import { useProductStore } from '@/lib/store/product-store';
-// import { useLoading } from '@/lib/hooks/use-loading';
-// import { getProductTableColumn } from './ProductTableColumn';
-// import { OverlayLoader } from '../shared/OverlayLoader';
-// import { ProductItem } from '@/lib/schemas/index-products';
-// import { InputRef } from 'antd';
-
-// const { Option } = Select;
-
-// export function ProductTable() {
-//   const { filters, setFilters, products, meta } = useProductStore();
-//   const { isFetching } = useProductQuery();
-//   const { loading, setLoading } = useLoading();
-
-//   const [form] = Form.useForm();
-//   const searchInput = useRef<InputRef>(null);
-//   const [searchText, setSearchText] = useState('');
-//   const [searchedColumn, setSearchedColumn] = useState('');
-
-// const didMount = useRef(false); // para remontar o form
-
-// useEffect(() => {
-//   if (!didMount.current) {
-//     form.setFieldsValue({
-//       name: filters.search ?? '',
-//       minPrice: filters.minPrice,
-//       maxPrice: filters.maxPrice,
-//       hasDiscount: filters.hasDiscount,
-//       sortBy: filters.sortBy,
-//       sortOrder: filters.sortOrder,
-//       includeDeleted: filters.includeDeleted,
-//       onlyOutOfStock: filters.onlyOutOfStock,
-//       withCouponApplied: filters.withCouponApplied,
-//     });
-//     didMount.current = true;
-//   }
-// }, []);
-
-//   useEffect(() => {
-//     setLoading(isFetching);
-//   }, [isFetching]);
-
-//   const pagination = useMemo(
-//     () => ({
-//       current: filters.page,
-//       pageSize: filters.limit,
-//       total: meta?.totalItems ?? 0,
-//       showSizeChanger: true,
-//       pageSizeOptions: ['10', '20', '30', '40', '50'],
-//     }),
-//     [filters.page, filters.limit, meta?.totalItems]
-//   );
-
-//   const handlePageChange = (pagination: any) => {
-//     // força sempre novo objeto (evita não atualizar se for o mesmo page)
-//     setFilters({
-//       ...filters,
-//       page: pagination.current ?? 1,
-//       limit: pagination.pageSize ?? 10,
-//     });
-//   };
-
-// const onSearch = (values: any) => {
-//   const {
-//     name,
-//     minPrice,
-//     maxPrice,
-//     hasDiscount,
-//     sortBy,
-//     sortOrder,
-//     includeDeleted,
-//     onlyOutOfStock,
-//     withCouponApplied,
-//   } = values;
-
-//   const payload = {
-//     page: 1,
-//     limit: filters.limit,
-//     search: name ?? '', // sempre dispara mesmo se vazio
-//     ...(minPrice != null ? { minPrice } : {}),
-//     ...(maxPrice != null ? { maxPrice } : {}),
-//     ...(hasDiscount ? { hasDiscount: true } : {}),
-//     ...(sortBy ? { sortBy } : {}),
-//     ...(sortOrder ? { sortOrder } : {}),
-//     ...(includeDeleted ? { includeDeleted: true } : {}),
-//     ...(onlyOutOfStock ? { onlyOutOfStock: true } : {}),
-//     ...(withCouponApplied ? { withCouponApplied: true } : {}),
-//   };
-
-//   // sempre força atualização (evita cache igual)
-//   setFilters({ ...payload });
-// };
-
-//   return (
-//     <div>
-//       <OverlayLoader loading={loading} />
-
-//       <Form
-//         form={form}
-//         layout="vertical"
-//         className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4"
-//         onFinish={onSearch}
-//       >
-//         <Form.Item name="name" label="Nome">
-//           <Input placeholder="Buscar por nome" />
-//         </Form.Item>
-
-//         <Form.Item name="minPrice" label="Preço mínimo">
-//           <Slider min={0.01} max={1000000} step={0.01} tooltip={{ open: true }} />
-//         </Form.Item>
-
-//         <Form.Item name="maxPrice" label="Preço máximo">
-//           <Slider min={0.01} max={1000000} step={0.01} tooltip={{ open: true }} />
-//         </Form.Item>
-
-//         <Form.Item name="hasDiscount" valuePropName="checked">
-//           <Checkbox>Tem desconto</Checkbox>
-//         </Form.Item>
-
-//         <Form.Item name="sortBy" label="Ordenar por">
-//           <Select allowClear>
-//             <Option value="name">Nome</Option>
-//             <Option value="price">Preço</Option>
-//             <Option value="createdAt">Criado em</Option>
-//           </Select>
-//         </Form.Item>
-
-//         <Form.Item name="sortOrder" label="Ordem">
-//           <Select allowClear>
-//             <Option value="asc">Ascendente</Option>
-//             <Option value="desc">Descendente</Option>
-//           </Select>
-//         </Form.Item>
-
-//         <Form.Item name="includeDeleted" valuePropName="checked">
-//           <Checkbox>Incluir deletados</Checkbox>
-//         </Form.Item>
-
-//         <Form.Item name="onlyOutOfStock" valuePropName="checked">
-//           <Checkbox>Somente sem estoque</Checkbox>
-//         </Form.Item>
-
-//         <Form.Item name="withCouponApplied" valuePropName="checked">
-//           <Checkbox>Com cupom aplicado</Checkbox>
-//         </Form.Item>
-
-//         <Form.Item className="col-span-full text-right">
-//           <Button type="primary" htmlType="submit">
-//             Buscar
-//           </Button>
-//         </Form.Item>
-//       </Form>
-
-//       {loading && products.length === 0 ? (
-//         <div className="space-y-4">
-//           {Array.from({ length: 10 }).map((_, idx) => (
-//             <div
-//               key={idx}
-//               className="h-12 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-md"
-//             />
-//           ))}
-//         </div>
-//       ) : (
-//         <Table
-//           rowKey="id"
-//           dataSource={products}
-//           columns={getProductTableColumn({
-//             searchText,
-//             setSearchText,
-//             searchedColumn,
-//             setSearchedColumn,
-//             showModal: (id: any) => console.log('Abrir modal para ID:', id),
-//             searchInput,
-//           })}
-//           pagination={pagination}
-//           loading={loading}
-//           onChange={handlePageChange} // só paginação
-//           scroll={{ x: 400 }}
-//         />
-//       )}
-//     </div>
-//   );
-// }

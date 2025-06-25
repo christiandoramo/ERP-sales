@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 
-type Section = 'dashboard' | 'products' | 'reports' | 'admin' | 'create-product' | 'edit-product';
+export type Section = 'dashboard' | 'products' | 'reports' | 'admin' | 'create-product' | 'update-product';
 
 interface SectionState {
   current: Section;
