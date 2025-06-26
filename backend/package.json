@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "erp:gen": "cd shared/prisma-config/prisma && npx prisma migrate dev && cd ../../",
     "erp:migrate": "cd shared/prisma-config/prisma && npx prisma migrate dev && cd ../../",
-    "erp:seed": "ts-node shared/prisma-config/prisma/seed.ts"
+    "erp:seed": "ts-node shared/prisma-config/prisma/seed.ts",
+    "erp:deploy-migrate": "cd shared/prisma-config/prisma && npx prisma migrate deploy && cd ../../"
   },
   "private": true,
   "devDependencies": {
