@@ -18,6 +18,8 @@ type ProductFilters = {
 };
 
 type ProductStore = {
+  modalProductId: number | null;
+  setModalProductId: (id: number | null) => void;
   selectedProduct: ProductItem | null;
   setSelectedProduct: (product: ProductItem | null) => void;
   filters: ProductFilters;
@@ -38,6 +40,8 @@ type ProductStore = {
 };
 
 export const useProductStore = create<ProductStore>((set) => ({
+  modalProductId: null,
+  setModalProductId: (id) => set({ modalProductId: id }),
   selectedProduct: null,
   setSelectedProduct: (product) => set({ selectedProduct: product }),
   filters: { page: 1, limit: 10 },

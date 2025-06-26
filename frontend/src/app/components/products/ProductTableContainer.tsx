@@ -4,7 +4,7 @@
 import { useMemo, useRef, useState } from "react";
 import { InputRef, Button, Input, Space } from "antd";
 import { ProductItem } from "@/lib/schemas/index-products";
-import { EntityTable } from "./EntityTable";
+import { EntityTable } from "../shared/table/EntityTable";
 import { useProductStore } from "@/lib/store/product-store";
 import { useProductQuery } from "@/lib/hooks/use-products-query";
 import { useLoading } from "@/lib/hooks/use-loading";
@@ -16,22 +16,20 @@ import {
 } from "@ant-design/icons";
 import { FilterConfirmProps, SorterResult } from "antd/es/table/interface";
 import { formatToBRL } from "@/lib/utils/formatters";
-import { useSectionStore } from "@/lib/store/section-store";
 
 type DataIndex = keyof ProductItem;
 
 export function ProductTableContainer() {
-  const { setSection } = useSectionStore();
 
 
-  const { filters, setFilters, meta,setSelectedProduct } = useProductStore();
+  const { filters, setFilters, meta, } = useProductStore();
   const { data } = useProductQuery();
   const { loading } = useLoading();
 
-  const [searchText, setSearchText] = useState("");
-  const [searchedColumn, setSearchedColumn] = useState("");
-  const [filteredInfo, setFilteredInfo] = useState({});
-  const [sortedInfo, setSortedInfo] = useState<SorterResult<ProductItem>>({});
+  const [, setSearchText] = useState("");
+  const [, setSearchedColumn] = useState("");
+  const [, setFilteredInfo] = useState({});
+  const [sortedInfo, ] = useState<SorterResult<ProductItem>>({});
   const searchInput = useRef<InputRef>(null);
 
   const handleSearch = (

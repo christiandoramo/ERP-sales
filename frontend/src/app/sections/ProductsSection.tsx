@@ -13,11 +13,11 @@ import { OverlayLoader } from "./../components/shared/layout/OverlayLoader";
 import { ProductItem } from "@/lib/schemas/index-products";
 import { GoToCreateProductButton } from "./../components/shared/buttons/GoToCreateProductButton";
 import { useSectionStore } from "@/lib/store/section-store";
+import { DiscountModal } from "../components/modals/DiscountModal";
 
 export function ProductsSection() {
-  const queryClient = useQueryClient();
-
-  const { filters, setFilters, products, meta } = useProductStore();
+  const { filters, setFilters, products, meta, setModalProductId } =
+    useProductStore();
   const { isFetching } = useProductQuery();
   const { loading, setLoading } = useLoading();
 
@@ -75,24 +75,6 @@ export function ProductsSection() {
     });
   };
 
-  // const handleClearFilters = () => {
-  //   setSearchText("");
-  //   setFilters({
-  //     page: 1,
-  //     limit: 10,
-  //     search: undefined,
-  //     sortBy: undefined,
-  //     sortOrder: undefined,
-  //     minPrice: undefined,
-  //     maxPrice: undefined,
-  //     stock: undefined,
-  //     hasDiscount: undefined,
-  //     includeDeleted: undefined,
-  //     onlyOutOfStock: undefined,
-  //     withCouponApplied: undefined,
-  //   });
-  // };
-
   const pagination = useMemo(
     () => ({
       current: filters.page,
@@ -106,7 +88,8 @@ export function ProductsSection() {
 
   const [minPrice, setMinPrice] = useState(0.01);
   const [maxPrice, setMaxPrice] = useState(1000000);
-  const handleMinMaxPrice = () => {
+
+  const handleSearch = () => {
     if (minPrice > maxPrice) return;
     setFilters((prev) => ({
       ...prev,
@@ -117,32 +100,21 @@ export function ProductsSection() {
     }));
   };
 
-
-const handleSearch = () => {
-  if (minPrice > maxPrice) return;
-  setFilters((prev) => ({
-    ...prev,
-    page: 1,
-    search: searchText.trim() || undefined,
-    minPrice,
-    maxPrice,
-  }));
-};
-
   return (
     <div>
       <OverlayLoader loading={loading} />
+      <DiscountModal />
 
       <GoToCreateProductButton loading={loading} />
       <ProductTableHeader
-      total={tableTotal}
-      searchText={searchText}
-      setSearchText={setSearchText}
-      minPrice={minPrice}
-      maxPrice={maxPrice}
-      setMinPrice={setMinPrice}
-      setMaxPrice={setMaxPrice}
-      onSearch={handleSearch}
+        total={tableTotal}
+        searchText={searchText}
+        setSearchText={setSearchText}
+        minPrice={minPrice}
+        maxPrice={maxPrice}
+        setMinPrice={setMinPrice}
+        setMaxPrice={setMaxPrice}
+        onSearch={handleSearch}
       />
 
       {loading && products.length === 0 ? (
@@ -163,7 +135,7 @@ const handleSearch = () => {
             setSearchText,
             searchedColumn,
             setSearchedColumn,
-            showModal: (id: any) => console.log("Abrir modal para ID:", id),
+            setModalProductId,
             searchInput,
             setSection,
             setSelectedProduct,

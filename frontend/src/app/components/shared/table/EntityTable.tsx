@@ -4,20 +4,12 @@
 import {
   Table,
   Button,
-  Input,
-  Space,
   TablePaginationConfig,
 } from 'antd';
 import {
-  SearchOutlined,
-  EyeOutlined,
-  EditOutlined,
-  DeleteOutlined,
 } from '@ant-design/icons';
-import { useRef, useState } from 'react';
 import type {
   ColumnsType,
-  SorterResult,
 } from 'antd/es/table/interface';
 import { TableProps } from 'antd/es/table';
 

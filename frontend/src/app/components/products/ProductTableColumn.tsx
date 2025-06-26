@@ -19,10 +19,10 @@ interface Params {
   setSearchText: (val: string) => void;
   searchedColumn: string;
   setSearchedColumn: (val: string) => void;
-  showModal: (id: number) => void;
   searchInput: React.RefObject<InputRef | null>;
   setSection: (section: Section) => void;
   setSelectedProduct: (product: ProductItem) => void;
+  setModalProductId: (produtId: number) => void;
 }
 
 export const getProductTableColumn = ({
@@ -30,9 +30,9 @@ export const getProductTableColumn = ({
   setSearchText,
   searchedColumn,
   setSearchedColumn,
-  showModal,
   searchInput,
   setSection,
+  setModalProductId,
   setSelectedProduct,
 }: Params): ColumnsType<ProductItem> => [
   {
@@ -146,19 +146,21 @@ export const getProductTableColumn = ({
         <Button
           className="text-green-500 hover:text-green-700 bg-transparent border-0 shadow-none"
           onClick={() => {
-            setSelectedProduct(record)
+            setSelectedProduct(record);
             setSection("update-product");
           }}
         >
           <EditOutlined />
         </Button>
         <Button
-          onClick={() => () => showModal(record.id)}
-          className="text-blue-500 hover:text-blue-700 bg-transparent border-0 shadow-none"
+          className="text-blue-500"
+          onClick={() => {
+            setModalProductId(record.id);
+            console.log("Aplicar desconto", record.id);
+          }}
         >
           <ShoppingOutlined />
         </Button>
-
         <Button
           className="text-red-500 hover:text-red-700 bg-transparent border-0 shadow-none"
           onClick={() => console.log("Desativar", record.id)}

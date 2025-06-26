@@ -5,9 +5,6 @@ import { DownOutlined } from '@ant-design/icons';
 
 export function Navbar() {
 
-  const menu = <Menu>
-      items
-    </Menu>
   const items: MenuProps['items'] = [
   {
     key: '1',
