@@ -25,7 +25,7 @@ export function Navbar() {
     <header className="fixed top-0 left-[200px] right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-end px-6 z-40">
       <Dropdown menu={{items}} trigger={['hover']}>
         <div className="flex items-center gap-2 cursor-pointer">
-          <Avatar src="https://via.placeholder.com/32" />
+          <Avatar src='./frontend/src/assets/retrato.png' />
           <span className="font-medium text-black">Arthur Morgan</span>
           <DownOutlined />
         </div>

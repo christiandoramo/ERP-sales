@@ -11,13 +11,7 @@ import React from "react";
 type DataIndex = string;
 
 export function getColumnSearchProps<T extends object>(
-  dataIndex: DataIndex,
-  searchInput: React.RefObject<InputRef | null>,
-  searchText: string,
-  setSearchText: (value: string) => void,
-  searchedColumn: string,
-  setSearchedColumn: (value: string) => void
-): ColumnType<T> {
+dataIndex: DataIndex, searchInput: React.RefObject<InputRef | null>, searchText: string, setSearchText: (value: string) => void, searchedColumn: string, setSearchedColumn: (value: string) => void): ColumnType<T> {
   return {
     filterDropdown: ({
       setSelectedKeys,

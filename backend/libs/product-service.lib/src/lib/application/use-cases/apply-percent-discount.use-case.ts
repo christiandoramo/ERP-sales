@@ -34,7 +34,7 @@ export class ApplyPercentDiscountUseCase {
     // ja tem disconto e trás disconto - cupom (fixed/percent) ou percentual direto
 
     const discount = input.percent; //Math.round((product.price * input.percent) / 100);
-    const finalPrice = +(product.price - discount * product.price).toFixed(2);
+    const finalPrice = +(product.price - discount/100 * product.price).toFixed(2);
 
     if (finalPrice < 0.01) {
       throw new UnprocessableEntityException(

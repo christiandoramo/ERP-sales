@@ -1,7 +1,7 @@
 export function formatToBRL(value: string): string {
   const numericString = Number(value).toFixed(2);
   // Substituir o ponto por vírgula
-  let stringValue = numericString.replace(".", ",");
+  const stringValue = numericString.replace(".", ",");
 
   // Garantir que a string tenha pelo menos um dígito antes da vírgula
   const parts = stringValue.split(",");
