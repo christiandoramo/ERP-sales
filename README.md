@@ -1,4 +1,6 @@
 # ERP-sales
+deploy backend: erp-sales-production.up.railway.app 
+
 
 ### Como rodar
 
@@ -14,7 +16,7 @@ docker compose up -d &&
 pnpm prisma generate --schema=shared/prisma-config/prisma/schema.prisma &&
 pnpm run erp:migrate &&
 pnpm run erp:seed &&
-nx run-many --target=serve --projects=api-gateway,coupon-service,product-service --parallel &&
+nx run-many --target=serve --projects=api-gateway,coupon-service,product-service --parallel
 
 ```
 Para rodar o frontend
