@@ -17,7 +17,7 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm prisma generate --schema=shared/prisma-config/prisma/schema.prisma
 
 # Roda migration e seed
-RUN pnpm run erp:migrate
+RUN pnpm run erp:migrate-deploy
 RUN pnpm run erp:seed
 
 # Instala `wait-on` e `concurrently` para orquestrar boot sequencial
