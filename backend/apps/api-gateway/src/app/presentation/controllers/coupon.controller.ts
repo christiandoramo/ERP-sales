@@ -7,7 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import { zodToOpenAPI } from 'nestjs-zod';
 import { ApiBody, ApiOkResponse, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 // import { LocationHeader } from '@erp-coupon-coupon/pipe-config';
-import { IndexCouponsDto, IndexCouponsOutputDto, indexCouponsValidationPipe } from 'libs/coupon-service.lib/src/lib/presentation/dtos/index-coupon.dto';
+import { IndexCouponsDto, IndexCouponsOutputDto, indexCouponsOutputSchema, indexCouponsSchema, indexCouponsValidationPipe } from 'libs/coupon-service.lib/src/lib/presentation/dtos/index-coupon.dto';
 
 @ApiTags('Cupons')
 @Controller('coupons')
@@ -46,12 +46,12 @@ export class CouponController {
   @Get()
   @HttpCode(200)
   @ApiQuery({
-    description: 'Cadastrar cupom',
-    schema: zodToOpenAPI(createCouponSchema),
+    description: 'Busca por cupons cupom',
+    schema: zodToOpenAPI(indexCouponsSchema),
   })
   @ApiOkResponse({
     description: 'Busca realizada com sucesso',
-    schema: zodToOpenAPI(createCouponOkResponseSchema),
+    schema: zodToOpenAPI(indexCouponsOutputSchema),
   })
   async indexCoupon(
     @Query(indexCouponsValidationPipe) query: IndexCouponsDto,

@@ -4,11 +4,14 @@ deploy backend: erp-sales-production.up.railway.app
 
 ### Como rodar
 
-Documentação da api: http://localhost:8080/docs
 
-rodar na raíz:
+Documentação da api localmente: http://localhost:8080/docs
+
+Em produção: https://erp-sales-production.up.railway.app/docs#/ 
+
+Rodar na pasta raíz:
 ```
-docker compose up
+docker compose up -> não consegui testar localmente porque fiquei sem espaço no disco
 ```
 - usar http:localhost:8080/api/v1 para backend]
 - http:localhost:3000/ para frontend

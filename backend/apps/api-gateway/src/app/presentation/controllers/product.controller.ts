@@ -52,6 +52,8 @@ import {
 import {
   IndexProductsDto,
   IndexProductsOutputDto,
+  indexProductsOutputSchema,
+  indexProductsSchema,
   indexProductsValidationPipe,
 } from 'libs/product-service.lib/src/lib/presentation/dtos/index-product.dto';
 import {
@@ -112,12 +114,12 @@ export class ProductController {
   @Get()
   @HttpCode(200)
   @ApiQuery({
-    description: 'Cadastrar produto',
-    schema: zodToOpenAPI(createProductSchema),
+    description: 'Buscar produto',
+    schema: zodToOpenAPI(indexProductsSchema),
   })
   @ApiOkResponse({
     description: 'Busca realizada com sucesso',
-    schema: zodToOpenAPI(createProductOkResponseSchema),
+    schema: zodToOpenAPI(indexProductsOutputSchema),
   })
   async indexProduct(
     @Query(indexProductsValidationPipe) query: IndexProductsDto
