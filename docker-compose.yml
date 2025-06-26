@@ -1,13 +1,10 @@
-version: "3.8"
-
 services:
   postgres:
     image: postgres:15
-    container_name: postgres_db
     environment:
-      POSTGRES_USER: erp_user
-      POSTGRES_PASSWORD: erp_pass
-      POSTGRES_DB: erp_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: erp-product-coupon
     ports:
       - "5432:5432"
     volumes:
@@ -18,24 +15,15 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      DATABASE_URL: postgres://erp_user:erp_pass@db:5432/erp_db
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: erp-product-coupon
+      DATABASE_URL: postgresql://user:password@postgres:5432/erp-product-coupon?schema=public
     ports:
-      - "8080:8080"
-      - "3015:3015"
-      - "3016:3016"
+      - "8080:8080" # Só API Gateway
     depends_on:
       - postgres
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:3000
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
 
 volumes:
   pgdata:

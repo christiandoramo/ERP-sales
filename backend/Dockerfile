@@ -1,24 +1,34 @@
-# Etapa 1: build
 FROM node:20
 
 WORKDIR /app
 
 COPY . .
 
+# Instala o Nx globalmente
 RUN npm install -g nx
 
+# Ativa e prepara o PNPM
 RUN corepack enable && corepack prepare pnpm@10.5.2 --activate
 
+# Instala dependências com lockfile travado
 RUN pnpm install --frozen-lockfile
 
+# Gera o client do Prisma
 RUN pnpm prisma generate --schema=shared/prisma-config/prisma/schema.prisma
 
-RUN cd shared/prisma-config/prisma && npx prisma migrate dev && cd ../../
+# Roda migration e seed
+RUN pnpm run erp:migrate
+RUN pnpm run erp:seed
 
-RUN ts-node shared/prisma-config/prisma/seed.ts
+# Instala `wait-on` e `concurrently` para orquestrar boot sequencial
+RUN pnpm add -D concurrently wait-on
 
-RUN nx run erp:seed
-
+# Exponha apenas a porta do API Gateway
 EXPOSE 8080
 
-RUN nx run-many --target=serve --projects=api-gateway,coupon-service,product-service --parallel
+# Comando para rodar os serviços de forma sequencial
+CMD ["pnpm", "exec", "concurrently", \
+  "--kill-others-on-fail", \
+  "\"nx serve coupon-service\"", \
+  "\"nx serve product-service\"", \
+  "\"wait-on tcp:3015 tcp:3016 && nx serve api-gateway\""]

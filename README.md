@@ -6,6 +6,13 @@ deploy backend: erp-sales-production.up.railway.app
 
 Documentação da api: http://localhost:8080/docs
 
+rodar na raíz:
+```
+docker compose up
+```
+- usar http:localhost:8080/api/v1 para backend]
+- http:localhost:3000/ para frontend
+
 Para rodar o backend 
 
 ```
@@ -26,9 +33,6 @@ npm install &&
 npm run dev &&
 ```
 
-O docker compose up funciona - mas não consegui verificar em quais portas
-- usar http:localhost:<porta>/api/v1 para backend]
-- http:localhost:<porta>/ para frontend
 
 ### Fase de Pesquisa
 
