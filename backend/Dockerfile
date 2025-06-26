@@ -13,7 +13,9 @@ RUN pnpm install --frozen-lockfile
 
 RUN pnpm prisma generate --schema=shared/prisma-config/prisma/schema.prisma
 
-RUN nx run erp:migrate
+RUN cd shared/prisma-config/prisma && npx prisma migrate dev && cd ../../
+
+RUN ts-node shared/prisma-config/prisma/seed.ts
 
 RUN nx run erp:seed
 
