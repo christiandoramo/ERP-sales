@@ -4,7 +4,10 @@
 
 A documentação pode ser vista ao acessar: http://localhost:3000/docs
 
+Para rodar o backend 
+
 ```
+cd backend
 npm install -g nx
 pnpm install
 docker compose up -d (ou criar um postgres com as credencias válidas como no env.example - não ssl)
@@ -12,6 +15,12 @@ pnpm prisma generate --schema=shared/prisma-config/prisma/schema.prisma
 pnpm run erp:migrate
 pnpm run erp:seed
 nx run-many --target=serve --projects=api-gateway,coupon-service,product-service
+```
+Para rodar o frontend
+```
+cd frontend
+npm install
+npm run dev
 ```
 
 ### Fase de Pesquisa
@@ -68,14 +77,6 @@ nx run-many --target=serve --projects=api-gateway,coupon-service,product-service
 
 * API-gateway como entrada e cliente do middleware de comunicação Kafka
 
-* DDD do framework Clean Architecture de Ardalis
- * Domain, Application, Presentation, Infrastructure
- * https://github.com/ardalis/CleanArchitecture
- * Domain: entidades de negócio puras (sem dependências)
- * Application: casos de uso + interfaces (sem dependência da infraestrutura)
- * Infrastructure: implementações técnicas (banco, APIs, arquivos, Kafka etc.)
- * Web (ou Presentation/UI/API): camada de entrada (controladores, HTTP, SSR, GraphQL)
-
 ## Links Importantes
 
 * Nx: https://nx.dev/getting-started/intro 
@@ -91,7 +92,6 @@ nx run-many --target=serve --projects=api-gateway,coupon-service,product-service
 - **Redis**: usado como cache para otimizar buscas frequentes ou armazenar estados temporários.
 - **Zod**: utilizado para validações de dados tanto na entrada de APIs quanto nas pipelines internas dos serviços NestJS.
 - **Docker + docker-compose**: facilita o ambiente de desenvolvimento e testes integrados com Kafka, Redis, NGINX e banco de dados.
-- **NGINX**: atua como proxy reverso, roteando requisições para frontend e API Gateway com controle eficiente de tráfego.
 - **Nx Monorepo**: permite gerenciar todos os serviços (backend e frontend) com CI/CD unificado, build incremental e reutilização de código entre libs.
 
 ## 🎨 Frontend
@@ -100,4 +100,4 @@ nx run-many --target=serve --projects=api-gateway,coupon-service,product-service
 - **React Query + Axios**: juntos oferecem cache, sincronização e refetch automático de dados com controle total de requisições HTTP.
 - **Zustand**: biblioteca leve e intuitiva para controle de estado local/global, ideal para projetos que não exigem complexidade como Redux.
 - **React Hook Form + Zod**: integração direta para validações declarativas e performance superior em formulários.
-- **Shadcn/UI + TailwindCSS**: proporcionam desenvolvimento rápido e responsivo com componentes acessíveis e estilização moderna e consistente.
+- **AntDesign + TailwindCSS**: proporcionam desenvolvimento rápido e responsivo com componentes acessíveis e estilização moderna e consistente.
