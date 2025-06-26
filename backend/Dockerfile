@@ -5,19 +5,18 @@ WORKDIR /app
 
 COPY . .
 
+RUN npm install -g nx
+
 RUN corepack enable && corepack prepare pnpm@10.5.2 --activate
 
 RUN pnpm install --frozen-lockfile
 
-RUN pnpm nx build api-gateway && pnpm nx build product-service && pnpm nx build coupon-service
-
 RUN pnpm prisma generate --schema=shared/prisma-config/prisma/schema.prisma
 
-RUN pnpm prisma migrate deploy --schema=shared/prisma-config/prisma/schema.prisma && pnpm run erp:seed
+RUN nx run erp:migrate
 
-EXPOSE 8080 3015 3016
+RUN nx run erp:seed
 
-CMD pnpm exec concurrently \
-  "pnpm nx serve api-gateway" \
-  "pnpm nx serve product-service" \
-  "pnpm nx serve coupon-service"
+EXPOSE 8080
+
+RUN nx run-many --target=serve --projects=api-gateway,coupon-service,product-service --parallel
