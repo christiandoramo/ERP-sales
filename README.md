@@ -5,7 +5,7 @@ deploy backend: erp-sales-production.up.railway.app
 ### Como rodar
 
 API em produção: https://erp-sales-production.up.railway.app/
-Frontend em produção: 
+Frontend em produção: https://erp-product-coupon-dv3p51qbu-christiandoramos-projects.vercel.app/
 Documentação da api localmente: http://localhost:8080/docs
 Em produção: https://erp-sales-production.up.railway.app/docs#/ 
 
