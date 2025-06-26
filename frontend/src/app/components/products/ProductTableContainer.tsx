@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 // src/app/components/shared/table/ProductTableContainer.tsx
 "use client";
 

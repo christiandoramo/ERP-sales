@@ -2,26 +2,31 @@
 
 ### Como rodar
 
-A documentação pode ser vista ao acessar: http://localhost:3000/docs
+Documentação da api: http://localhost:8080/docs
 
 Para rodar o backend 
 
 ```
-cd backend
-npm install -g nx
-pnpm install
-docker compose up -d (ou criar um postgres com as credencias válidas como no env.example - não ssl)
-pnpm prisma generate --schema=shared/prisma-config/prisma/schema.prisma
-pnpm run erp:migrate
-pnpm run erp:seed
-nx run-many --target=serve --projects=api-gateway,coupon-service,product-service
+cd backend &&
+npm install -g nx &&
+pnpm install &&
+docker compose up -d &&
+pnpm prisma generate --schema=shared/prisma-config/prisma/schema.prisma &&
+pnpm run erp:migrate &&
+pnpm run erp:seed &&
+nx run-many --target=serve --projects=api-gateway,coupon-service,product-service --parallel &&
+
 ```
 Para rodar o frontend
 ```
 cd frontend
-npm install
-npm run dev
+npm install &&
+npm run dev &&
 ```
+
+O docker compose up funciona - mas não consegui verificar em quais portas
+- usar http:localhost:<porta>/api/v1 para backend]
+- http:localhost:<porta>/ para frontend
 
 ### Fase de Pesquisa
 
@@ -77,24 +82,25 @@ npm run dev
 
 * API-gateway como entrada e cliente do middleware de comunicação Kafka
 
-## Links Importantes
-
-* Nx: https://nx.dev/getting-started/intro 
-* Padrões de Commit: https://github.com/iuricode/padroes-de-commits.git 
-* Nx + Nestjs + Prisma: https://github.com/nrwl/nx-recipes/tree/main/nestjs-prisma#nx--nestjs--prisma 
-
 ## 🧠 Backend
 
-- **NestJS**: framework modular, com suporte nativo a TypeScript e ótima integração com arquitetura de microsserviços. Facilita a organização em camadas (DDD, Clean Architecture) e comunicação assíncrona com Kafka.
-- **Kafka + Zookeeper**: permite comunicação desacoplada entre serviços, ideal para um sistema distribuído que precisa escalar módulos como descontos e cupons separadamente.
+# pastas principais
+* libs com a estrutura presentation (controllers), infrastructure(banco de dados), presentation(use cases), domain (entidades)
+* apps com api-gateway e os microsservios de fato
+
+- **NestJS**: framework modular, com suporte nativo a TypeScript e ótima integração com arquitetura de microsserviços. Facilita a organização em camadas (DDD, Clean Architecture).
+- **TCP**: permite comunicação desacoplada entre serviços, ideal para um sistema distribuído que precisa escalar módulos como descontos e cupons separadamente.
 - **PostgreSQL**: banco de dados relacional robusto e amplamente utilizado, ideal para garantir integridade dos dados e facilitar joins entre entidades como produtos e cupons.
 - **Prisma ORM**: fornece tipagem forte, velocidade de desenvolvimento e integração perfeita com NestJS + Postgres.
-- **Redis**: usado como cache para otimizar buscas frequentes ou armazenar estados temporários.
 - **Zod**: utilizado para validações de dados tanto na entrada de APIs quanto nas pipelines internas dos serviços NestJS.
 - **Docker + docker-compose**: facilita o ambiente de desenvolvimento e testes integrados com Kafka, Redis, NGINX e banco de dados.
 - **Nx Monorepo**: permite gerenciar todos os serviços (backend e frontend) com CI/CD unificado, build incremental e reutilização de código entre libs.
 
 ## 🎨 Frontend
+
+# pastas principais
+* lib com hooks, stores, schemas e utils
+* app com os components, pages, e layout
 
 - **Next.js**: framework moderno baseado em React, com SSR e SSG ideais para projetos que envolvem SEO, como catálogos de produto.
 - **React Query + Axios**: juntos oferecem cache, sincronização e refetch automático de dados com controle total de requisições HTTP.
