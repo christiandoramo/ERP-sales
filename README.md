@@ -4,9 +4,9 @@ deploy backend: erp-sales-production.up.railway.app
 
 ### Como rodar
 
-
+API em produção: https://erp-sales-production.up.railway.app/
+Frontend em produção: 
 Documentação da api localmente: http://localhost:8080/docs
-
 Em produção: https://erp-sales-production.up.railway.app/docs#/ 
 
 Rodar na pasta raíz:
