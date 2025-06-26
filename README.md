@@ -1,6 +1,4 @@
 # ERP-sales
-deploy backend: erp-sales-production.up.railway.app 
-
 
 ### Como rodar
 
